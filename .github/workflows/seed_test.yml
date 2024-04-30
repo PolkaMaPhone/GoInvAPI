@@ -1,15 +1,6 @@
 #file: noinspection SpellCheckingInspection
 name: Go Test
-
 on: [ push, pull_request ]
-
-env:
-  DB_USER: ${{ secrets.DB_USER }}
-  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-  DB_HOST: ${{ secrets.DB_HOST }}
-  DB_PORT: ${{ secrets.DB_PORT }}
-  DB_NAME: ${{ secrets.DB_NAME }}
-  DB_SCHEMA: ${{ secrets.DB_SCHEMA }}
 
 jobs:
   test:
@@ -29,6 +20,15 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
+        
+      - name: Check Secrets Availability
+        run: |
+          if [ -z "${{ secrets.DB_PASSWORD }}" ]; then
+            echo "DB_PASSWORD secret is empty"
+            exit 1  # Fails the workflow if DB_PASSWORD is empty
+          else
+            echo "DB_PASSWORD secret is set"
+          fi
 
       - name: Set up Go
         uses: actions/setup-go@v2
