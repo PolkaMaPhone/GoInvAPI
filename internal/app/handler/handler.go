@@ -27,3 +27,12 @@ func HandleGetItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func HandleRequest(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	response, _ := json.Marshal(map[string]string{"status": "server running"})
+	_, err := w.Write(response)
+	if err != nil {
+		return
+	}
+}
