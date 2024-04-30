@@ -8,6 +8,9 @@ create table item_history
     "updatedAt" timestamp with time zone not null
 );
 
+alter table item_history
+    owner to postgres;
+
 create table transactions
 (
     transaction_id integer,
@@ -19,6 +22,9 @@ create table transactions
     "updatedAt"    timestamp with time zone not null
 );
 
+alter table transactions
+    owner to postgres;
+
 create table categories
 (
     category_id serial
@@ -28,6 +34,9 @@ create table categories
     "createdAt" timestamp with time zone not null,
     "updatedAt" timestamp with time zone not null
 );
+
+alter table categories
+    owner to postgres;
 
 create table groups
 (
@@ -39,6 +48,9 @@ create table groups
     "updatedAt" timestamp with time zone not null
 );
 
+alter table groups
+    owner to postgres;
+
 create table locations
 (
     location_id serial
@@ -48,6 +60,9 @@ create table locations
     "createdAt" timestamp with time zone not null,
     "updatedAt" timestamp with time zone not null
 );
+
+alter table locations
+    owner to postgres;
 
 create table items
 (
@@ -69,6 +84,9 @@ create table items
     "updatedAt" timestamp with time zone not null
 );
 
+alter table items
+    owner to postgres;
+
 create table shelves
 (
     shelf_id    serial
@@ -81,6 +99,9 @@ create table shelves
     "createdAt" timestamp with time zone not null,
     "updatedAt" timestamp with time zone not null
 );
+
+alter table shelves
+    owner to postgres;
 
 create table tubs
 (
@@ -96,4 +117,7 @@ create table tubs
     "createdAt" timestamp with time zone not null,
     "updatedAt" timestamp with time zone not null
 );
+
+alter table tubs
+    owner to postgres;
 

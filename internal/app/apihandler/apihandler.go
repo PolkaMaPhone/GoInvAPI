@@ -1,4 +1,4 @@
-package handlers
+package apihandler
 
 import (
 	"context"
@@ -8,13 +8,14 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
-type Handler struct {
+type APIHandler struct {
 	DB db.DBTX
 }
 
-func (h *Handler) HandleGetItem(w http.ResponseWriter, r *http.Request) {
+func (h *APIHandler) HandleGetItem(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	itemID, err := strconv.Atoi(vars["item_id"])
 	if err != nil {
@@ -39,9 +40,10 @@ func (h *Handler) HandleGetItem(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) HandleRequest(w http.ResponseWriter) {
+func (h *APIHandler) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	response, _ := json.Marshal(map[string]string{"status": "server running"})
+	port := r.Host[strings.LastIndex(r.Host, ":")+1:]
+	response, _ := json.Marshal(map[string]string{"status": "server running", "port": port})
 	_, err := w.Write(response)
 	if err != nil {
 		return

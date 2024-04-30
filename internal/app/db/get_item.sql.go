@@ -10,9 +10,13 @@ import (
 )
 
 const getItem = `-- name: GetItem :one
-SELECT item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt", "updatedAt" FROM items WHERE item_id = $1
+
+SELECT item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt", "updatedAt"
+FROM items
+WHERE item_id = $1
 `
 
+// noinspection SqlResolveForFile
 func (q *Queries) GetItem(ctx context.Context, itemID int32) (Item, error) {
 	row := q.db.QueryRow(ctx, getItem, itemID)
 	var i Item

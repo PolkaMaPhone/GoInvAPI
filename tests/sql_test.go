@@ -1,21 +1,15 @@
-package service
+package tests
 
 import (
 	"context"
 	"fmt"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/app/apihandler"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/app/db"
 	"github.com/jackc/pgx/v5"
 	"log"
-	"net/http"
 	"os"
+	"testing"
 )
 
-type App struct {
-	DB db.DBTX
-}
-
-func NewApp() *App {
+func TestYourFunction(t *testing.T) {
 	DbUser := os.Getenv("DB_USER")
 	DbPassword := os.Getenv("DB_PASSWORD")
 	DbHost := os.Getenv("DB_HOST")
@@ -29,15 +23,9 @@ func NewApp() *App {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
 
-	return &App{
-		DB: conn,
+	// connect and query the database
+	_, err = conn.Query(context.Background(), "SELECT * FROM items")
+	if err != nil {
+		log.Fatalf("Query failed: %v\n", err)
 	}
-}
-
-func (a *App) Start() {
-	apiHandler := &apihandler.APIHandler{
-		DB: a.DB,
-	}
-	r := NewRouter(apiHandler)
-	log.Fatal(http.ListenAndServe(":8080", r))
 }
