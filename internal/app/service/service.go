@@ -1,11 +1,10 @@
 package service
 
 import (
+	"github.com/PolkaMaPhone/GoInvAPI/internal/app/handler"
 	"log"
 	"net/http"
 )
-
-// other necessary imports
 
 type App struct {
 	// Add fields such as database connections, config, etc.
@@ -16,8 +15,8 @@ func NewApp() *App {
 	return &App{}
 }
 
-func (a *App) Start(handlerFunc func(http.ResponseWriter, *http.Request)) {
-	// Setup your HTTP server, routes, etc.
-	http.HandleFunc("/", handlerFunc)
+func (a *App) Start() {
+	http.HandleFunc("/", handlers.HandleRequest)
+	http.HandleFunc("/items", handlers.HandleGetItem) // New route for GetItems
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

@@ -3,11 +3,10 @@
 package main
 
 import (
-	handlers "github.com/PolkaMaPhone/GoInvAPI/internal/app/handler"
 	services "github.com/PolkaMaPhone/GoInvAPI/internal/app/service"
 )
 
 func main() {
 	app := services.NewApp()
-	app.Start(handlers.HandleRequest)
+	app.Start()
 }
