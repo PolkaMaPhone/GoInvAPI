@@ -19,9 +19,9 @@ jobs:
       postgres:
         image: postgres:13
         env:
-          POSTGRES_USER: ${{ env.DB_USER }}
-          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
-          POSTGRES_DB: ${{ env.DB_NAME }}
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -47,9 +47,9 @@ jobs:
             sleep 1
           done
           # Seed the database
-          PGPASSWORD=${{ env.DB_PASSWORD }} psql -h localhost -U ${{ env.DB_USER }} -d ${{ env.DB_NAME }} -f db/seed_create_db.sql
-          PGPASSWORD=${{ env.DB_PASSWORD }} psql -h localhost -U ${{ env.DB_USER }} -d ${{ env.DB_NAME }} -f db/seed_init_db.sql
-          PGPASSWORD=${{ env.DB_PASSWORD }} psql -h localhost -U ${{ env.DB_USER }} -d ${{ env.DB_NAME }} -f db/seed_insert.sql
+          PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h localhost -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -f db/seed_create_db.sql
+          PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h localhost -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -f db/seed_init_db.sql
+          PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h localhost -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -f db/seed_insert.sql
 
       - name: Run tests
         run: go test ./...
