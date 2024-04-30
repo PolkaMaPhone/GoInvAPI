@@ -1,9 +1,11 @@
-package app
+package service
 
 import (
 	"log"
 	"net/http"
 )
+
+// other necessary imports
 
 type App struct {
 	// Add fields such as database connections, config, etc.
@@ -14,13 +16,8 @@ func NewApp() *App {
 	return &App{}
 }
 
-func (a *App) Start() {
+func (a *App) Start(handlerFunc func(http.ResponseWriter, *http.Request)) {
 	// Setup your HTTP server, routes, etc.
-	http.HandleFunc("/", a.handleRequest)
+	http.HandleFunc("/", handlerFunc)
 	log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
-func (a *App) handleRequest(w http.ResponseWriter, r *http.Request) {
-	// Handle your requests here
-	w.Write([]byte("Hello, World!"))
 }
