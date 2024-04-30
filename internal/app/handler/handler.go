@@ -39,7 +39,7 @@ func (h *Handler) HandleGetItem(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) HandleRequest(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HandleRequest(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	response, _ := json.Marshal(map[string]string{"status": "server running"})
 	_, err := w.Write(response)

@@ -1,3 +1,5 @@
+-- noinspection SqlResolveForFile
+
 -- name: GetItem :one
 SELECT *
 FROM items

@@ -35,7 +35,6 @@ func NewApp() *App {
 }
 
 func (a *App) Start() {
-
 	handler := &handlers.Handler{
 		DB: a.DB,
 	}
