@@ -30,6 +30,10 @@ VALUES (3, 'Ungrouped', 'This item does not belong to any specific group.', '202
 
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
+VALUES (1, 'Sample Item 111', 'Description for Sample Item 1-1-1', 1, 1, 1, false, '2024-04-30 02:59:40.225+00',
+        '2024-04-30 02:59:40.225+00');
+INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
+                             "updatedAt")
 VALUES (2, 'Sample Item 112', 'Description for Sample Item 1-1-2', 1, 1, 2, false, '2024-04-30 02:59:40.225+00',
         '2024-04-30 02:59:40.225+00');
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
