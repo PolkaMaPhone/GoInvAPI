@@ -1,15 +1,16 @@
-package service
+package appservice
 
 import (
 	"context"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/app/apihandler"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/status"
 	"net/http"
 	"testing"
 	"time"
 )
 
 func TestAppStart(t *testing.T) {
-	handler := apihandler.NewAPIHandler()
+
+	handler := status.NewStatusHandler()
 	app := NewApp(handler)
 
 	app.Start()

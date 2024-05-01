@@ -1,24 +1,30 @@
-package service
+package appservice
 
 import (
 	"context"
 	"errors"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/app/apihandler"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
 
 type App struct {
-	Handler *apihandler.APIHandler
-	Server  *http.Server
+	Handlers []interfaces.Handler
+	Server   *http.Server
 }
 
-func NewApp(handler *apihandler.APIHandler) *App {
+func NewApp(handlers ...interfaces.Handler) *App {
+	router := mux.NewRouter()
+	for _, h := range handlers {
+		h.HandleRoutes(router)
+	}
+
 	return &App{
-		Handler: handler,
+		Handlers: handlers,
 		Server: &http.Server{
 			Addr:    ":8080",
-			Handler: NewRouter(handler),
+			Handler: router,
 		},
 	}
 }

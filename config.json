@@ -1,0 +1,8 @@
+{
+  "DbHost": "10.0.2.2",
+  "DbName": "inventory",
+  "DbPassword": "example",
+  "DbPort": "5432",
+  "DbSchema": "test_seed",
+  "DbUser": "postgres"
+}

@@ -1,15 +1,53 @@
-package apihandler
+package item
 
 import (
 	"encoding/json"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/dbconn"
 	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
+type MockItemHandler struct {
+	mock.Mock
+}
+
+func (m *MockItemHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
+	m.Called(w, r)
+}
+
+func (m *MockItemHandler) HandleRoutes(router *mux.Router) {
+	router.HandleFunc("/items/{item_id}", m.HandleGet).Methods("GET")
+}
+
+func TestGetItemRoute(t *testing.T) {
+	mockHandler := new(MockItemHandler)
+	mockHandler.On("HandleGet", mock.Anything, mock.AnythingOfType("*http.Request")).Return()
+
+	r := mux.NewRouter()
+	mockHandler.HandleRoutes(r)
+
+	req, _ := http.NewRequest("GET", "/items/1", nil)
+	rr := httptest.NewRecorder()
+
+	r.ServeHTTP(rr, req)
+
+	mockHandler.AssertCalled(t, "HandleGet", rr, mock.AnythingOfType("*http.Request"))
+}
+
 func TestHandleGetItem(t *testing.T) {
-	handler := NewAPIHandler()
+	config, err := dbconn.LoadConfigFile()
+	if err != nil {
+		t.Fatalf("Unable to load configuration: %v\n", err)
+	}
+	db := &dbconn.PgxDB{}
+	_, err = dbconn.New(config, db)
+	if err != nil {
+		t.Fatalf("Unable to connect to database: %v\n", err)
+	}
+	handler := NewItemHandler(db.Pool)
 
 	req, err := http.NewRequest("GET", "/items/1", nil)
 	if err != nil {
@@ -17,8 +55,7 @@ func TestHandleGetItem(t *testing.T) {
 	}
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/items/{item_id}", handler.HandleGetItem)
-
+	router.HandleFunc("/items/{item_id}", handler.HandleGet)
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -56,28 +93,5 @@ func TestHandleGetItem(t *testing.T) {
 			t.Errorf("handler returned unexpected %s: got %v want %v",
 				key, response[key], expectedValue)
 		}
-	}
-}
-
-func TestHandleStatus(t *testing.T) {
-	handler := NewAPIHandler()
-
-	req, err := http.NewRequest("GET", "/", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-	handler.HandleStatus(rr, req)
-
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
-
-	expected := `{"port":"","status":"server running"}`
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			rr.Body.String(), expected)
 	}
 }
