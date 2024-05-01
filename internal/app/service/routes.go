@@ -7,7 +7,7 @@ import (
 
 func NewRouter(apiHandler *apihandler.APIHandler) *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/", apiHandler.HandleRequest).Methods("GET")
+	r.HandleFunc("/status", apiHandler.HandleStatus).Methods("GET")
 	r.HandleFunc("/items/{item_id}", apiHandler.HandleGetItem).Methods("GET")
 	return r
 }

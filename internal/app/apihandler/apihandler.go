@@ -62,7 +62,7 @@ func (h *APIHandler) HandleGetItem(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *APIHandler) HandleRequest(w http.ResponseWriter, r *http.Request) {
+func (h *APIHandler) HandleStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	port := r.Host[strings.LastIndex(r.Host, ":")+1:]
 	response, _ := json.Marshal(map[string]string{"status": "server running", "port": port})
