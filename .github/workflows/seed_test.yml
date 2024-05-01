@@ -10,7 +10,9 @@ jobs:
       postgres:
         image: postgres
         env:
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: example
+          POSTGRES_DB: inventory
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -32,19 +34,19 @@ jobs:
           # Install psql
           sudo apt-get -yqq install postgresql-client
           # Wait for PostgreSQL to become ready
-          until PGPASSWORD=example psql -h postgres -U postgres -c '\q'; do
+          until PGPASSWORD=example psql -h localhost -U postgres -c '\q'; do
             sleep 1
           done
           # Seed the database
-          PGPASSWORD=example psql -h postgres -U postgres -d inventory -f db/seed_create_db.sql
-          PGPASSWORD=example psql -h postgres -U postgres -d inventory -f db/seed_init_db.sql
-          PGPASSWORD=example psql -h postgres -U postgres -d inventory -f db/seed_insert.sql
+          PGPASSWORD=example psql -h localhost -U postgres -d inventory -f db/seed_create_db.sql
+          PGPASSWORD=example psql -h localhost -U postgres -d inventory -f db/seed_init_db.sql
+          PGPASSWORD=example psql -h localhost -U postgres -d inventory -f db/seed_insert.sql
 
       - name: Run tests
         env:
           DB_USER: postgres
           DB_PASSWORD: example
-          DB_HOST: postgres
+          DB_HOST: localhost
           DB_PORT: 5432
           DB_NAME: inventory
           DB_SCHEMA: test_seed
