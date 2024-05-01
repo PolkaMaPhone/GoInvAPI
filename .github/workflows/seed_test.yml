@@ -18,18 +18,6 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4.1.4
-        
-      - name: Check Secrets Availability
-        shell: bash
-        env: 
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        run: |
-          if [ -z "$DB_PASSWORD" ]; then
-            echo "DB_PASSWORD secret is empty"
-            exit 1
-          else
-            echo "DB_PASSWORD secret is set"
-          fi
 
       - name: Set up Go
         uses: actions/setup-go@v5.0.0
@@ -44,20 +32,20 @@ jobs:
           # Install psql
           sudo apt-get -yqq install postgresql-client
           # Wait for PostgreSQL to become ready
-          until PGPASSWORD=${{ env.DB_PASSWORD }} psql -h localhost -U ${{ env.DB_USER }} -c '\q'; do
+          until PGPASSWORD=example psql -h localhost -U postgres -c '\q'; do
             sleep 1
           done
           # Seed the database
-          PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h localhost -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -f db/seed_create_db.sql
-          PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h localhost -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -f db/seed_init_db.sql
-          PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h localhost -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -f db/seed_insert.sql
+          PGPASSWORD=example psql -h localhost -U postgres -d inventory -f db/seed_create_db.sql
+          PGPASSWORD=example psql -h localhost -U postgres -d inventory -f db/seed_init_db.sql
+          PGPASSWORD=example psql -h localhost -U postgres -d inventory -f db/seed_insert.sql
 
       - name: Run tests
         env:
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_SCHEMA: ${{ secrets.DB_SCHEMA }}
+          DB_USER: postgres
+          DB_PASSWORD: example
+          DB_HOST: postgres
+          DB_PORT: 5432
+          DB_NAME: inventory
+          DB_SCHEMA: test_seed
         run: go test ./...
