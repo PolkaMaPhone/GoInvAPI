@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestYourFunction(t *testing.T) {
+func TestDatabaseConnection(t *testing.T) {
 	DbUser := os.Getenv("DB_USER")
 	DbPassword := os.Getenv("DB_PASSWORD")
 	DbHost := os.Getenv("DB_HOST")
