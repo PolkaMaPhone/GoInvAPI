@@ -1,10 +1,12 @@
 package main
 
 import (
-	services "github.com/PolkaMaPhone/GoInvAPI/internal/app/service"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/app/apihandler"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/app/service"
 )
 
 func main() {
-	app := services.NewApp()
+	apiHandler := apihandler.NewAPIHandler()
+	app := service.NewApp(apiHandler)
 	app.Start()
 }

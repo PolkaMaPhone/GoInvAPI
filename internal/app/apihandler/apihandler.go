@@ -3,16 +3,38 @@ package apihandler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/app/db"
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 )
 
 type APIHandler struct {
 	DB db.DBTX
+}
+
+func NewAPIHandler() *APIHandler {
+	DbUser := os.Getenv("DB_USER")
+	DbPassword := os.Getenv("DB_PASSWORD")
+	DbHost := os.Getenv("DB_HOST")
+	DbPort := os.Getenv("DB_PORT")
+	DbName := os.Getenv("DB_NAME")
+	DbSchema := os.Getenv("DB_SCHEMA")
+	connectionString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", DbUser, DbPassword, DbHost, DbPort, DbName, DbSchema)
+
+	conn, err := pgx.Connect(context.Background(), connectionString)
+	if err != nil {
+		log.Fatalf("Unable to connect to database: %v\n", err)
+	}
+
+	return &APIHandler{
+		DB: conn,
+	}
 }
 
 func (h *APIHandler) HandleGetItem(w http.ResponseWriter, r *http.Request) {
