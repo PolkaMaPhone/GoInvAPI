@@ -42,3 +42,38 @@ func TestRepo_GetAllItems(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, items)
 }
+func TestRepo_GetAllItemsWithCategory(t *testing.T) {
+	config, err := dbconn.LoadConfigFile()
+	if err != nil {
+		t.Fatalf("Unable to load configuration: %v\n", err)
+	}
+	db := &dbconn.PgxDB{}
+	_, err = dbconn.New(config, db)
+	if err != nil {
+		t.Fatalf("Unable to connect to database: %v\n", err)
+	}
+
+	repo := NewRepository(db.Pool)
+	items, err := repo.GetAllItemsWithCategory()
+
+	assert.NoError(t, err)
+	assert.NotNil(t, items)
+}
+
+func TestRepo_GetItemByIDWithCategory(t *testing.T) {
+	config, err := dbconn.LoadConfigFile()
+	if err != nil {
+		t.Fatalf("Unable to load configuration: %v\n", err)
+	}
+	db := &dbconn.PgxDB{}
+	_, err = dbconn.New(config, db)
+	if err != nil {
+		t.Fatalf("Unable to connect to database: %v\n", err)
+	}
+
+	repo := NewRepository(db.Pool)
+	item, err := repo.GetItemByIDWithCategory(1)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, item)
+}
