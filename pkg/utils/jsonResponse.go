@@ -3,7 +3,7 @@ package utils
 
 import (
 	"encoding/json"
-	"log"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware"
 	"net/http"
 )
 
@@ -15,6 +15,6 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.WriteHeader(code)
 	_, err := w.Write(response)
 	if err != nil {
-		log.Printf("Error writing response: %v", err)
+		middleware.ErrorLogger.Printf("Error writing response: %v", err)
 	}
 }

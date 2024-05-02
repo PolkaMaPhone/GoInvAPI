@@ -1,6 +1,7 @@
 package statusInterface
 
 import (
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -13,6 +14,7 @@ func NewStatusHandler() *Handler {
 
 func (h *Handler) HandleRoutes(router *mux.Router) {
 	apiRouter := router.PathPrefix("/api").Subrouter()
+	apiRouter.Use(middleware.LoggingMiddleware("INFO"))
 	apiRouter.HandleFunc("/status", h.HandleStatus).Methods("GET")
 }
 
