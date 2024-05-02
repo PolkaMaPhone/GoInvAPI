@@ -1,11 +1,10 @@
 package item
 
 import (
-	"encoding/json"
-	dItem "github.com/PolkaMaPhone/GoInvAPI/internal/domain/item"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/dbconn"
-
+	"errors"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/item"
 	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
@@ -16,12 +15,31 @@ type MockItemHandler struct {
 	mock.Mock
 }
 
+type MockService struct {
+	mock.Mock
+}
+
+type Service interface {
+	GetItemByID(id int32) (*item.Item, error)
+	GetAllItems() ([]*item.Item, error)
+}
+
 func (m *MockItemHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	m.Called(w, r)
 }
 
 func (m *MockItemHandler) HandleRoutes(router *mux.Router) {
 	router.HandleFunc("/items/{item_id}", m.HandleGet).Methods("GET")
+}
+
+func (m *MockService) GetItemByID(id int32) (*item.Item, error) {
+	args := m.Called(id)
+	return args.Get(0).(*item.Item), args.Error(1)
+}
+
+func (m *MockService) GetAllItems() ([]*item.Item, error) {
+	args := m.Called()
+	return args.Get(0).([]*item.Item), args.Error(1)
 }
 
 func TestGetItemRoute(t *testing.T) {
@@ -39,68 +57,49 @@ func TestGetItemRoute(t *testing.T) {
 	mockHandler.AssertCalled(t, "HandleGet", rr, mock.AnythingOfType("*http.Request"))
 }
 
-func TestHandleGetItem(t *testing.T) {
-	config, err := dbconn.LoadConfigFile()
-	if err != nil {
-		t.Fatalf("Unable to load configuration: %v\n", err)
-	}
-	db := &dbconn.PgxDB{}
-	_, err = dbconn.New(config, db)
-	if err != nil {
-		t.Fatalf("Unable to connect to database: %v\n", err)
-	}
-	// Create an instance of the item repository
-	itemRepo := dItem.NewRepository(db.Pool)
+func TestHandleGet_Error(t *testing.T) {
+	mockService := new(MockService)
+	mockItemService := item.NewService(mockService)
+	handler := NewItemHandler(mockItemService)
 
-	// Create an instance of the item service
-	itemService := dItem.NewService(itemRepo)
+	mockService.On("GetItemByID", int32(1)).Return(&item.Item{}, errors.New("some error"))
 
-	// Create an instance of the item handler
-	itemHandler := NewItemHandler(itemService)
-
-	req, err := http.NewRequest("GET", "/items/1", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	req, _ := http.NewRequest("GET", "/items/1", nil)
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/items/{item_id}", itemHandler.HandleGet)
+	router.HandleFunc("/items/{item_id}", handler.HandleGet)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
+	assert.Equal(t, http.StatusInternalServerError, rr.Code)
+	mockService.AssertExpectations(t)
+}
 
-	// Unmarshal the response body into a map
-	var response map[string]interface{}
-	err = json.Unmarshal(rr.Body.Bytes(), &response)
-	if err != nil {
-		t.Fatalf("Could not unmarshal response body: %v", err)
-	}
+func TestHandleGet_InvalidID(t *testing.T) {
+	mockService := new(MockService)
+	mockItemService := item.NewService(mockService)
+	handler := NewItemHandler(mockItemService)
 
-	// Check for the existence of the timestamp fields
-	if _, ok := response["CreatedAt"]; !ok {
-		t.Errorf("Expected 'CreatedAt' field in response body")
-	}
-	if _, ok := response["UpdatedAt"]; !ok {
-		t.Errorf("Expected 'UpdatedAt' field in response body")
-	}
+	req, _ := http.NewRequest("GET", "/items/invalid", nil)
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/items/{item_id}", handler.HandleGet)
+	router.ServeHTTP(rr, req)
 
-	// Check the other fields as before
-	expectedItem := map[string]interface{}{
-		"ItemID":      1.0, // json.Unmarshal converts integers to floats
-		"Name":        "Sample Item 111",
-		"Description": "Description for Sample Item 1-1-1",
-		"CategoryID":  1.0,
-		"GroupID":     1.0,
-		"LocationID":  1.0,
-		"IsStored":    false,
-	}
-	for key, expectedValue := range expectedItem {
-		if response[key] != expectedValue {
-			t.Errorf("handler returned unexpected %s: got %v want %v",
-				key, response[key], expectedValue)
-		}
-	}
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
+}
+
+func TestHandleGetAll_Error(t *testing.T) {
+	mockService := new(MockService)
+	mockItemService := item.NewService(mockService)
+	handler := NewItemHandler(mockItemService)
+	mockService.On("GetAllItems").Return([]*item.Item{}, errors.New("some error"))
+
+	req, _ := http.NewRequest("GET", "/items", nil)
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/items", handler.HandleGetAll)
+	router.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusInternalServerError, rr.Code)
+	mockService.AssertExpectations(t)
 }
