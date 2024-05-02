@@ -48,7 +48,7 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) HandleGetAll(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HandleGetAll(w http.ResponseWriter, _ *http.Request) {
 	items, err := h.service.GetAllItems()
 	if err != nil {
 		log.Printf("Error getting items: %v", err)

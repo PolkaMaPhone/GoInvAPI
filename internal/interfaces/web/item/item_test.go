@@ -2,7 +2,9 @@ package item
 
 import (
 	"encoding/json"
+	dItem "github.com/PolkaMaPhone/GoInvAPI/internal/domain/item"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/dbconn"
+
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/mock"
 	"net/http"
@@ -47,7 +49,14 @@ func TestHandleGetItem(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to connect to database: %v\n", err)
 	}
-	handler := NewItemHandler(db.Pool)
+	// Create an instance of the item repository
+	itemRepo := dItem.NewRepository(db.Pool)
+
+	// Create an instance of the item service
+	itemService := dItem.NewService(itemRepo)
+
+	// Create an instance of the item handler
+	itemHandler := NewItemHandler(itemService)
 
 	req, err := http.NewRequest("GET", "/items/1", nil)
 	if err != nil {
@@ -55,7 +64,7 @@ func TestHandleGetItem(t *testing.T) {
 	}
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/items/{item_id}", handler.HandleGet)
+	router.HandleFunc("/items/{item_id}", itemHandler.HandleGet)
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
