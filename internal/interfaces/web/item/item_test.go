@@ -19,11 +19,6 @@ type MockService struct {
 	mock.Mock
 }
 
-type Service interface {
-	GetItemByID(id int32) (*item.Item, error)
-	GetAllItems() ([]*item.Item, error)
-}
-
 func (m *MockItemHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	m.Called(w, r)
 }
