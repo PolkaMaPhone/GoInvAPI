@@ -27,20 +27,23 @@ func createApp() *appservice.App {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
 
-	// Create an instance of the item repository
+	// Create an instance of the repositories
 	itemRepo := itemDomain.NewRepository(db.Pool)
 	categoryRepo := categoryDomain.NewRepository(db.Pool)
 
-	// Create an instance of the item service
+	// Create services from repositories
 	itemService := itemDomain.NewService(itemRepo)
 	categoryService := categoryDomain.NewService(categoryRepo)
 
-	// Create an instance of the item handler
+	// Create handlers from services
 	itemHandler := itemInterface.NewItemHandler(itemService)
 	categoryHandler := categoryInterface.NewCategoryHandler(categoryService)
 
+	// Create status handler
 	statusHandler := statusInterface.NewStatusHandler()
-	app := appservice.NewApp(itemHandler, statusHandler, categoryHandler)
+
+	// Create New App and inject handlers
+	app := appservice.NewApp(itemHandler, categoryHandler, statusHandler)
 
 	return app
 }

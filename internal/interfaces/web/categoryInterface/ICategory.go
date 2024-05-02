@@ -20,8 +20,9 @@ func NewCategoryHandler(s *categoryDomain.Service) *Handler {
 }
 
 func (h *Handler) HandleRoutes(router *mux.Router) {
-	router.HandleFunc("/categories/{category_id}", h.HandleGet).Methods("GET")
-	router.HandleFunc("/categories", h.HandleGetAll).Methods("GET")
+	apiRouter := router.PathPrefix("/api").Subrouter()
+	apiRouter.HandleFunc("/categories/{category_id}", h.HandleGet).Methods("GET")
+	apiRouter.HandleFunc("/categories", h.HandleGetAll).Methods("GET")
 }
 
 func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
