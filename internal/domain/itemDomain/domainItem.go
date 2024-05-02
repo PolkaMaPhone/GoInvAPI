@@ -1,5 +1,5 @@
-// Package item domain/item/item.go
-package item
+// Package item domain/item/IItem.go
+package itemDomain
 
 import (
 	"context"

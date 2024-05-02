@@ -1,5 +1,5 @@
-// Package category domain/category/category.go
-package category
+// Package categoryInterface domain/categoryInterface/categoryInterface.go
+package categoryDomain
 
 import (
 	"context"

@@ -1,8 +1,8 @@
-package item
+package itemInterface
 
 import (
 	"errors"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/item"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -27,14 +27,14 @@ func (m *MockItemHandler) HandleRoutes(router *mux.Router) {
 	router.HandleFunc("/items/{item_id}", m.HandleGet).Methods("GET")
 }
 
-func (m *MockService) GetItemByID(id int32) (*item.Item, error) {
+func (m *MockService) GetItemByID(id int32) (*itemDomain.Item, error) {
 	args := m.Called(id)
-	return args.Get(0).(*item.Item), args.Error(1)
+	return args.Get(0).(*itemDomain.Item), args.Error(1)
 }
 
-func (m *MockService) GetAllItems() ([]*item.Item, error) {
+func (m *MockService) GetAllItems() ([]*itemDomain.Item, error) {
 	args := m.Called()
-	return args.Get(0).([]*item.Item), args.Error(1)
+	return args.Get(0).([]*itemDomain.Item), args.Error(1)
 }
 
 func TestGetItemRoute(t *testing.T) {
@@ -54,10 +54,10 @@ func TestGetItemRoute(t *testing.T) {
 
 func TestHandleGet_Error(t *testing.T) {
 	mockService := new(MockService)
-	mockItemService := item.NewService(mockService)
+	mockItemService := itemDomain.NewService(mockService)
 	handler := NewItemHandler(mockItemService)
 
-	mockService.On("GetItemByID", int32(1)).Return(&item.Item{}, errors.New("some error"))
+	mockService.On("GetItemByID", int32(1)).Return(&itemDomain.Item{}, errors.New("some error"))
 
 	req, _ := http.NewRequest("GET", "/items/1", nil)
 	rr := httptest.NewRecorder()
@@ -71,7 +71,7 @@ func TestHandleGet_Error(t *testing.T) {
 
 func TestHandleGet_InvalidID(t *testing.T) {
 	mockService := new(MockService)
-	mockItemService := item.NewService(mockService)
+	mockItemService := itemDomain.NewService(mockService)
 	handler := NewItemHandler(mockItemService)
 
 	req, _ := http.NewRequest("GET", "/items/invalid", nil)
@@ -85,9 +85,9 @@ func TestHandleGet_InvalidID(t *testing.T) {
 
 func TestHandleGetAll_Error(t *testing.T) {
 	mockService := new(MockService)
-	mockItemService := item.NewService(mockService)
+	mockItemService := itemDomain.NewService(mockService)
 	handler := NewItemHandler(mockItemService)
-	mockService.On("GetAllItems").Return([]*item.Item{}, errors.New("some error"))
+	mockService.On("GetAllItems").Return([]*itemDomain.Item{}, errors.New("some error"))
 
 	req, _ := http.NewRequest("GET", "/items", nil)
 	rr := httptest.NewRecorder()

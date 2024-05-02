@@ -1,8 +1,8 @@
-package item
+package itemInterface
 
 import (
 	"encoding/json"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/item"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -10,10 +10,10 @@ import (
 )
 
 type Handler struct {
-	service *item.Service
+	service *itemDomain.Service
 }
 
-func NewItemHandler(s *item.Service) *Handler {
+func NewItemHandler(s *itemDomain.Service) *Handler {
 	return &Handler{
 		service: s,
 	}

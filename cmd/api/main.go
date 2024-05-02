@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/application/appservice"
-	dCategory "github.com/PolkaMaPhone/GoInvAPI/internal/domain/category"
-	dItem "github.com/PolkaMaPhone/GoInvAPI/internal/domain/item"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/categoryDomain"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/dbconn"
-	iCategory "github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/category"
-	iItem "github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/item"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/categoryInterface"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/itemInterface"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/status"
 	"log"
 	"os"
@@ -28,16 +28,16 @@ func createApp() *appservice.App {
 	}
 
 	// Create an instance of the item repository
-	itemRepo := dItem.NewRepository(db.Pool)
-	categoryRepo := dCategory.NewRepository(db.Pool)
+	itemRepo := itemDomain.NewRepository(db.Pool)
+	categoryRepo := categoryDomain.NewRepository(db.Pool)
 
 	// Create an instance of the item service
-	itemService := dItem.NewService(itemRepo)
-	categoryService := dCategory.NewService(categoryRepo)
+	itemService := itemDomain.NewService(itemRepo)
+	categoryService := categoryDomain.NewService(categoryRepo)
 
 	// Create an instance of the item handler
-	itemHandler := iItem.NewItemHandler(itemService)
-	categoryHandler := iCategory.NewCategoryHandler(categoryService)
+	itemHandler := itemInterface.NewItemHandler(itemService)
+	categoryHandler := categoryInterface.NewCategoryHandler(categoryService)
 
 	statusHandler := status.NewStatusHandler()
 	app := appservice.NewApp(itemHandler, statusHandler, categoryHandler)

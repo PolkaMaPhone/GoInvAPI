@@ -1,4 +1,4 @@
-package category
+package categoryDomain
 
 import (
 	"github.com/stretchr/testify/assert"

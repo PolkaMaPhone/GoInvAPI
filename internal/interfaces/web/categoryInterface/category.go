@@ -1,8 +1,8 @@
-package category
+package categoryInterface
 
 import (
 	"encoding/json"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/category"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/categoryDomain"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -10,10 +10,10 @@ import (
 )
 
 type Handler struct {
-	service *category.Service
+	service *categoryDomain.Service
 }
 
-func NewCategoryHandler(s *category.Service) *Handler {
+func NewCategoryHandler(s *categoryDomain.Service) *Handler {
 	return &Handler{
 		service: s,
 	}

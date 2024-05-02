@@ -1,8 +1,8 @@
-package category
+package categoryInterface
 
 import (
 	"errors"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/category"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/categoryDomain"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -27,14 +27,14 @@ func (m *MockCategoryHandler) HandleRoutes(router *mux.Router) {
 	router.HandleFunc("/categories/{category_id}", m.HandleGet).Methods("GET")
 }
 
-func (m *MockService) GetCategoryByID(id int32) (*category.Category, error) {
+func (m *MockService) GetCategoryByID(id int32) (*categoryDomain.Category, error) {
 	args := m.Called(id)
-	return args.Get(0).(*category.Category), args.Error(1)
+	return args.Get(0).(*categoryDomain.Category), args.Error(1)
 }
 
-func (m *MockService) GetAllCategories() ([]*category.Category, error) {
+func (m *MockService) GetAllCategories() ([]*categoryDomain.Category, error) {
 	args := m.Called()
-	return args.Get(0).([]*category.Category), args.Error(1)
+	return args.Get(0).([]*categoryDomain.Category), args.Error(1)
 }
 
 func TestGetCategoryRoute(t *testing.T) {
@@ -54,10 +54,10 @@ func TestGetCategoryRoute(t *testing.T) {
 
 func TestHandleGet_Error(t *testing.T) {
 	mockService := new(MockService)
-	mockCategoryService := category.NewService(mockService)
+	mockCategoryService := categoryDomain.NewService(mockService)
 	handler := NewCategoryHandler(mockCategoryService)
 
-	mockService.On("GetCategoryByID", int32(1)).Return(&category.Category{}, errors.New("some error"))
+	mockService.On("GetCategoryByID", int32(1)).Return(&categoryDomain.Category{}, errors.New("some error"))
 
 	req, _ := http.NewRequest("GET", "/categories/1", nil)
 	rr := httptest.NewRecorder()
@@ -71,7 +71,7 @@ func TestHandleGet_Error(t *testing.T) {
 
 func TestHandleGet_InvalidID(t *testing.T) {
 	mockService := new(MockService)
-	mockCategoryService := category.NewService(mockService)
+	mockCategoryService := categoryDomain.NewService(mockService)
 	handler := NewCategoryHandler(mockCategoryService)
 
 	req, _ := http.NewRequest("GET", "/categories/invalid", nil)
@@ -85,9 +85,9 @@ func TestHandleGet_InvalidID(t *testing.T) {
 
 func TestHandleGetAll_Error(t *testing.T) {
 	mockService := new(MockService)
-	mockCategoryService := category.NewService(mockService)
+	mockCategoryService := categoryDomain.NewService(mockService)
 	handler := NewCategoryHandler(mockCategoryService)
-	mockService.On("GetAllCategories").Return([]*category.Category{}, errors.New("some error"))
+	mockService.On("GetAllCategories").Return([]*categoryDomain.Category{}, errors.New("some error"))
 
 	req, _ := http.NewRequest("GET", "/categories", nil)
 	rr := httptest.NewRecorder()

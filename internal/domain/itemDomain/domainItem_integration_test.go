@@ -1,4 +1,4 @@
-package category
+package itemDomain
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRepo_GetCategoryByID(t *testing.T) {
+func TestRepo_GetItemByID(t *testing.T) {
 	config, err := dbconn.LoadConfigFile()
 	if err != nil {
 		t.Fatalf("Unable to load configuration: %v\n", err)
@@ -19,13 +19,13 @@ func TestRepo_GetCategoryByID(t *testing.T) {
 	}
 
 	repo := NewRepository(db.Pool)
-	category, err := repo.GetCategoryByID(1)
+	item, err := repo.GetItemByID(1)
 
 	assert.NoError(t, err)
-	assert.NotNil(t, category)
+	assert.NotNil(t, item)
 }
 
-func TestRepo_GetAllCategories(t *testing.T) {
+func TestRepo_GetAllItems(t *testing.T) {
 	config, err := dbconn.LoadConfigFile()
 	if err != nil {
 		t.Fatalf("Unable to load configuration: %v\n", err)
@@ -37,8 +37,8 @@ func TestRepo_GetAllCategories(t *testing.T) {
 	}
 
 	repo := NewRepository(db.Pool)
-	categories, err := repo.GetAllCategories()
+	items, err := repo.GetAllItems()
 
 	assert.NoError(t, err)
-	assert.NotNil(t, categories)
+	assert.NotNil(t, items)
 }

@@ -2,13 +2,13 @@ package main
 
 import (
 	"github.com/PolkaMaPhone/GoInvAPI/internal/application/appservice"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/item"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/itemInterface"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/status"
 	"testing"
 )
 
 type MockItemHandler struct {
-	item.Handler
+	itemInterface.Handler
 }
 
 type MockStatusHandler struct {
