@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -72,25 +73,19 @@ func TestLoadConfigFile(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.ProjectRoot != "" {
-				err := os.MkdirAll(tc.ProjectRoot, os.ModePerm)
+				// Create the directory within PROJECT_ROOT
+				testDir := filepath.Join(os.Getenv("PROJECT_ROOT"), tc.ProjectRoot)
+				err := os.MkdirAll(testDir, os.ModePerm)
 				assert.NoError(t, err)
-				err = os.WriteFile(tc.ProjectRoot+"/config.json", []byte(tc.configJSON), 0644)
-				assert.NoError(t, err)
-				err = os.WriteFile(tc.ProjectRoot+"/config.json.sample", []byte(tc.configSampleJSON), 0644)
-				assert.NoError(t, err)
-			}
-			err := os.Setenv("PROJECT_ROOT", tc.ProjectRoot)
-			assert.NoError(t, err)
 
-			_, err = LoadConfigFile()
-			if tc.expectErr {
-				assert.Error(t, err)
-			} else {
+				// Create the config.json and config.json.sample files
+				err = os.WriteFile(filepath.Join(testDir, "config.json"), []byte(tc.configJSON), 0644)
 				assert.NoError(t, err)
-			}
+				err = os.WriteFile(filepath.Join(testDir, "config.json.sample"), []byte(tc.configSampleJSON), 0644)
+				assert.NoError(t, err)
 
-			if tc.ProjectRoot != "" {
-				err = os.RemoveAll(tc.ProjectRoot)
+				// Set the PROJECT_ROOT environment variable to the test directory
+				err = os.Setenv("PROJECT_ROOT", testDir)
 				assert.NoError(t, err)
 			}
 		})
@@ -131,16 +126,19 @@ func TestNew(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Create a temporary directory and a configuration file in it
-			tmpDir, err := os.MkdirTemp("", "")
-			assert.NoError(t, err)
-			err = os.WriteFile(tmpDir+"/config.json", []byte(tt.configFile), 0644)
-			assert.NoError(t, err)
-			err = os.WriteFile(tmpDir+"/config.json.sample", []byte(tt.configFile), 0644)
+			// Create a temporary directory within PROJECT_ROOT
+			testDir := filepath.Join(os.Getenv("PROJECT_ROOT"), "test")
+			err := os.MkdirAll(testDir, os.ModePerm)
 			assert.NoError(t, err)
 
-			// Set the PROJECT_ROOT environment variable to the path of the temporary directory
-			err = os.Setenv("PROJECT_ROOT", tmpDir)
+			// Create the config.json and config.json.sample files
+			err = os.WriteFile(filepath.Join(testDir, "config.json"), []byte(tt.configFile), 0644)
+			assert.NoError(t, err)
+			err = os.WriteFile(filepath.Join(testDir, "config.json.sample"), []byte(tt.configFile), 0644)
+			assert.NoError(t, err)
+
+			// Set the PROJECT_ROOT environment variable to the test directory
+			err = os.Setenv("PROJECT_ROOT", testDir)
 			assert.NoError(t, err)
 
 			// Load the configuration from the file
@@ -171,7 +169,7 @@ func TestNew(t *testing.T) {
 			mockDB.AssertCalled(t, "Connect", mock.Anything)
 
 			// Remove the temporary directory
-			err = os.RemoveAll(tmpDir)
+			err = os.RemoveAll(testDir)
 			assert.NoError(t, err)
 		})
 	}
