@@ -19,7 +19,7 @@ func TestHandleRoutes(t *testing.T) {
 	h := NewStatusHandler()
 	h.HandleRoutes(r)
 
-	req, err := http.NewRequest("GET", "/status", nil)
+	req, err := http.NewRequest("GET", "/api/status", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

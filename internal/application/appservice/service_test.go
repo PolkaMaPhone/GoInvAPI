@@ -19,7 +19,7 @@ func TestAppStart(t *testing.T) {
 	time.Sleep(time.Second)
 
 	// Now we can send a request to the server
-	resp, err := http.Get("http://localhost:8080/status")
+	resp, err := http.Get("http://localhost:8080/api/status")
 	if err != nil {
 		t.Fatalf("Could not send GET request: %v", err)
 	}
