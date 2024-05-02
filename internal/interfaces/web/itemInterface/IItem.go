@@ -1,8 +1,8 @@
 package itemInterface
 
 import (
-	"encoding/json"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/utils"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -43,12 +43,7 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(foundItem)
-	if err != nil {
-		log.Printf("Error encoding item: %v", err)
-		return
-	}
+	utils.RespondWithJSON(w, http.StatusOK, foundItem)
 }
 
 func (h *Handler) HandleGetAll(w http.ResponseWriter, _ *http.Request) {
@@ -59,12 +54,7 @@ func (h *Handler) HandleGetAll(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(items)
-	if err != nil {
-		log.Printf("Error encoding items: %v", err)
-		return
-	}
+	utils.RespondWithJSON(w, http.StatusOK, items)
 }
 
 func (h *Handler) HandleGetWithCategory(w http.ResponseWriter, r *http.Request) {
@@ -83,12 +73,7 @@ func (h *Handler) HandleGetWithCategory(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(foundItem)
-	if err != nil {
-		log.Printf("Error encoding item with category: %v", err)
-		return
-	}
+	utils.RespondWithJSON(w, http.StatusOK, foundItem)
 }
 
 func (h *Handler) HandleGetAllWithCategory(w http.ResponseWriter, _ *http.Request) {
@@ -99,10 +84,5 @@ func (h *Handler) HandleGetAllWithCategory(w http.ResponseWriter, _ *http.Reques
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(items)
-	if err != nil {
-		log.Printf("Error encoding items with category: %v", err)
-		return
-	}
+	utils.RespondWithJSON(w, http.StatusOK, items)
 }

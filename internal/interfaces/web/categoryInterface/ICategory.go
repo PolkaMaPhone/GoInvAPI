@@ -1,8 +1,8 @@
 package categoryInterface
 
 import (
-	"encoding/json"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/categoryDomain"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/utils"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -41,12 +41,7 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(foundCategory)
-	if err != nil {
-		log.Printf("Error encoding category: %v", err)
-		return
-	}
+	utils.RespondWithJSON(w, http.StatusOK, foundCategory)
 }
 
 func (h *Handler) HandleGetAll(w http.ResponseWriter, _ *http.Request) {
@@ -57,10 +52,5 @@ func (h *Handler) HandleGetAll(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(categories)
-	if err != nil {
-		log.Printf("Error encoding categories: %v", err)
-		return
-	}
+	utils.RespondWithJSON(w, http.StatusOK, categories)
 }
