@@ -1,9 +1,8 @@
 package item
 
 import (
-	"context"
 	"encoding/json"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/db"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/item"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -11,17 +10,18 @@ import (
 )
 
 type Handler struct {
-	DB db.DBTX
+	service *item.Service
 }
 
-func NewItemHandler(db db.DBTX) *Handler {
+func NewItemHandler(s *item.Service) *Handler {
 	return &Handler{
-		DB: db,
+		service: s,
 	}
 }
 
 func (h *Handler) HandleRoutes(router *mux.Router) {
 	router.HandleFunc("/items/{item_id}", h.HandleGet).Methods("GET")
+	router.HandleFunc("/items", h.HandleGetAll).Methods("GET")
 }
 
 func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
@@ -33,8 +33,7 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	queries := db.New(h.DB)
-	item, err := queries.GetItem(context.Background(), int32(itemID))
+	foundItem, err := h.service.GetItemByID(int32(itemID))
 	if err != nil {
 		log.Printf("Error getting item: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -42,9 +41,25 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(item)
+	err = json.NewEncoder(w).Encode(foundItem)
 	if err != nil {
 		log.Printf("Error encoding item: %v", err)
+		return
+	}
+}
+
+func (h *Handler) HandleGetAll(w http.ResponseWriter, r *http.Request) {
+	items, err := h.service.GetAllItems()
+	if err != nil {
+		log.Printf("Error getting items: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(items)
+	if err != nil {
+		log.Printf("Error encoding items: %v", err)
 		return
 	}
 }

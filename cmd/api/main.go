@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/application/appservice"
+	dItem "github.com/PolkaMaPhone/GoInvAPI/internal/domain/item"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/dbconn"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/item"
+	iItem "github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/item"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/status"
 	"log"
 	"os"
@@ -24,8 +25,15 @@ func createApp() *appservice.App {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
 
-	// declare multiple handlers here
-	itemHandler := item.NewItemHandler(db.Pool)
+	// Create an instance of the item repository
+	itemRepo := dItem.NewRepository(db.Pool)
+
+	// Create an instance of the item service
+	itemService := dItem.NewService(itemRepo)
+
+	// Create an instance of the item handler
+	itemHandler := iItem.NewItemHandler(itemService)
+
 	statusHandler := status.NewStatusHandler()
 	app := appservice.NewApp(itemHandler, statusHandler)
 
