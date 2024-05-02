@@ -13,10 +13,10 @@ import (
 
 const getItemWithCategory = `-- name: GetItemWithCategory :one
 SELECT items.item_id, items.name, items.description, items.category_id, items.group_id, items.location_id, items.is_stored, items."createdAt", items."updatedAt",
-       categories.name AS category_name,
+       categories.name        AS category_name,
        categories.description AS category_description
 FROM items
-         JOIN categories ON items.category_id = categories.category_id
+         LEFT JOIN categories ON items.category_id = categories.category_id
 WHERE item_id = $1
 `
 
@@ -30,7 +30,7 @@ type GetItemWithCategoryRow struct {
 	IsStored            pgtype.Bool
 	CreatedAt           pgtype.Timestamptz
 	UpdatedAt           pgtype.Timestamptz
-	CategoryName        string
+	CategoryName        pgtype.Text
 	CategoryDescription pgtype.Text
 }
 

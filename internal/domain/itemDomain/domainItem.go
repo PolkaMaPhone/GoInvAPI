@@ -153,6 +153,12 @@ func (r *Repo) GetItemByIDWithCategory(id int32) (*dto.ItemWithCategory, error) 
 		CategoryName:        dbItem.CategoryName,
 		CategoryDescription: dbItem.CategoryDescription,
 	}
+	//if the CategoryID is null, set CategoryName to "Uncategorized"
+	if dbItem.CategoryID.Valid == false {
+		item.CategoryName = pgtype.Text{String: "Uncategorized", Valid: true}
+		item.CategoryDescription = pgtype.Text{String: "An Uncategorized Item", Valid: true}
+	}
+
 	return item, nil
 }
 
@@ -182,6 +188,12 @@ func (r *Repo) GetAllItemsWithCategory() ([]*dto.ItemWithCategory, error) {
 			CategoryName:        dbItem.CategoryName,
 			CategoryDescription: dbItem.CategoryDescription,
 		}
+		//if the CategoryID is null, set CategoryName to "Uncategorized"
+		if dbItem.CategoryID.Valid == false {
+			item.CategoryName = pgtype.Text{String: "Uncategorized", Valid: true}
+			item.CategoryDescription = pgtype.Text{String: "An Uncategorized Item", Valid: true}
+		}
+
 		items = append(items, item)
 	}
 

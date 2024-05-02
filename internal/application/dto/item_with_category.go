@@ -14,6 +14,6 @@ type ItemWithCategory struct {
 	IsStored            pgtype.Bool
 	CreatedAt           pgtype.Timestamptz
 	UpdatedAt           pgtype.Timestamptz
-	CategoryName        string
+	CategoryName        pgtype.Text
 	CategoryDescription pgtype.Text
 }
