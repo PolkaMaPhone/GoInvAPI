@@ -73,7 +73,7 @@ func TestService_GetItemByIDWithCategory(t *testing.T) {
 		IsStored:            pgtype.Bool{Bool: true, Valid: true},
 		CreatedAt:           pgtype.Timestamptz{},
 		UpdatedAt:           pgtype.Timestamptz{},
-		CategoryName:        "Category1",
+		CategoryName:        pgtype.Text{String: "Category1", Valid: true},
 		CategoryDescription: pgtype.Text{String: "CategoryDescription1", Valid: true},
 	}
 	mockRepo.On("GetItemByIDWithCategory", int32(1)).Return(item, nil)
@@ -110,7 +110,7 @@ func TestService_GetAllItemsWithCategory(t *testing.T) {
 			IsStored:            pgtype.Bool{Bool: true, Valid: true},
 			CreatedAt:           pgtype.Timestamptz{},
 			UpdatedAt:           pgtype.Timestamptz{},
-			CategoryName:        "Category1",
+			CategoryName:        pgtype.Text{String: "Category1", Valid: true},
 			CategoryDescription: pgtype.Text{String: "CategoryDescription1", Valid: true},
 		},
 		{
@@ -123,7 +123,7 @@ func TestService_GetAllItemsWithCategory(t *testing.T) {
 			IsStored:            pgtype.Bool{Bool: true, Valid: true},
 			CreatedAt:           pgtype.Timestamptz{},
 			UpdatedAt:           pgtype.Timestamptz{},
-			CategoryName:        "Category2",
+			CategoryName:        pgtype.Text{String: "Category2", Valid: true},
 			CategoryDescription: pgtype.Text{String: "CategoryDescription2", Valid: true},
 		},
 	}
