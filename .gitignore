@@ -42,3 +42,6 @@
 # Go specific
 *.test
 *.prof
+
+# no config.json
+config.json

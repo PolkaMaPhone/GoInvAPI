@@ -28,8 +28,16 @@ func LoadConfigFile() (Config, error) {
 		return config, fmt.Errorf("PROJECT_ROOT environment variable is not set")
 	}
 
+	// Check if we are in a test environment
+	testEnv := os.Getenv("TEST_ENV")
+
 	// Construct the path to the config.json file
-	configPath := filepath.Join(rootDir, "config.json")
+	var configPath string
+	if testEnv == "true" {
+		configPath = filepath.Join(rootDir, "config.json.sample")
+	} else {
+		configPath = filepath.Join(rootDir, "config.json")
+	}
 
 	file, err := os.Open(configPath)
 	if err != nil {

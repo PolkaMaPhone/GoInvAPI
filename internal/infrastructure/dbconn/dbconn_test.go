@@ -19,15 +19,24 @@ func (m *MockDB) Connect(connectionString string) error {
 
 func TestLoadConfigFile(t *testing.T) {
 	testCases := []struct {
-		name        string
-		projectRoot string
-		configJSON  string
-		expectErr   bool
+		name             string
+		ProjectRoot      string
+		configJSON       string
+		expectErr        bool
+		configSampleJSON string
 	}{
 		{
 			name:        "ValidConfig",
-			projectRoot: "/test",
+			ProjectRoot: "/test",
 			configJSON: `{
+				"DbUser": "username",
+				"DbPassword": "password",
+				"DbHost": "localhost",
+				"DbPort": "5432",
+				"DbName": "testdb",
+				"DbSchema": "public"
+			}`,
+			configSampleJSON: `{
 				"DbUser": "username",
 				"DbPassword": "password",
 				"DbHost": "localhost",
@@ -39,7 +48,7 @@ func TestLoadConfigFile(t *testing.T) {
 		},
 		{
 			name:        "InvalidConfig",
-			projectRoot: "/test",
+			ProjectRoot: "/test",
 			configJSON: `{
 				"DbUser": "username",
 			}`,
@@ -47,7 +56,7 @@ func TestLoadConfigFile(t *testing.T) {
 		},
 		{
 			name:        "EmptyRootDir",
-			projectRoot: "",
+			ProjectRoot: "",
 			configJSON: `{
 				"DbUser": "username",
 				"DbPassword": "password",
@@ -62,13 +71,15 @@ func TestLoadConfigFile(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			if tc.projectRoot != "" {
-				err := os.MkdirAll(tc.projectRoot, os.ModePerm)
+			if tc.ProjectRoot != "" {
+				err := os.MkdirAll(tc.ProjectRoot, os.ModePerm)
 				assert.NoError(t, err)
-				err = os.WriteFile(tc.projectRoot+"/config.json", []byte(tc.configJSON), 0644)
+				err = os.WriteFile(tc.ProjectRoot+"/config.json", []byte(tc.configJSON), 0644)
+				assert.NoError(t, err)
+				err = os.WriteFile(tc.ProjectRoot+"/config.json.sample", []byte(tc.configSampleJSON), 0644)
 				assert.NoError(t, err)
 			}
-			err := os.Setenv("PROJECT_ROOT", tc.projectRoot)
+			err := os.Setenv("PROJECT_ROOT", tc.ProjectRoot)
 			assert.NoError(t, err)
 
 			_, err = LoadConfigFile()
@@ -78,8 +89,8 @@ func TestLoadConfigFile(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			if tc.projectRoot != "" {
-				err = os.RemoveAll(tc.projectRoot)
+			if tc.ProjectRoot != "" {
+				err = os.RemoveAll(tc.ProjectRoot)
 				assert.NoError(t, err)
 			}
 		})
@@ -124,6 +135,8 @@ func TestNew(t *testing.T) {
 			tmpDir, err := os.MkdirTemp("", "")
 			assert.NoError(t, err)
 			err = os.WriteFile(tmpDir+"/config.json", []byte(tt.configFile), 0644)
+			assert.NoError(t, err)
+			err = os.WriteFile(tmpDir+"/config.json.sample", []byte(tt.configFile), 0644)
 			assert.NoError(t, err)
 
 			// Set the PROJECT_ROOT environment variable to the path of the temporary directory

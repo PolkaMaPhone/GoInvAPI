@@ -1,5 +1,5 @@
 {
-  "DbHost": "10.0.2.2",
+  "DbHost": "localhost",
   "DbName": "inventory",
   "DbPassword": "example",
   "DbPort": "5432",
