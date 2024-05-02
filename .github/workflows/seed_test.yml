@@ -13,6 +13,7 @@ jobs:
       DB_NAME: ${{ secrets.DB_NAME }}
       DB_SCHEMA: ${{ secrets.DB_SCHEMA }}
       PROJECT_ROOT: ${{ github.workspace }}
+      TEST_ENV: true
 
     services:
       postgres:
