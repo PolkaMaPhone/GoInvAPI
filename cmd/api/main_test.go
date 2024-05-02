@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/PolkaMaPhone/GoInvAPI/internal/application/appservice"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/itemInterface"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/status"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/statusInterface"
 	"testing"
 )
 
@@ -12,7 +12,7 @@ type MockItemHandler struct {
 }
 
 type MockStatusHandler struct {
-	status.Handler
+	statusInterface.Handler
 }
 
 func TestCreateApp(t *testing.T) {

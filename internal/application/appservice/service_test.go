@@ -2,7 +2,7 @@ package appservice
 
 import (
 	"context"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/status"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/statusInterface"
 	"net/http"
 	"testing"
 	"time"
@@ -10,7 +10,7 @@ import (
 
 func TestAppStart(t *testing.T) {
 
-	handler := status.NewStatusHandler()
+	handler := statusInterface.NewStatusHandler()
 	app := NewApp(handler)
 
 	app.Start()

@@ -8,7 +8,7 @@ import (
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/dbconn"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/categoryInterface"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/itemInterface"
-	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/status"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/statusInterface"
 	"log"
 	"os"
 	"os/signal"
@@ -39,7 +39,7 @@ func createApp() *appservice.App {
 	itemHandler := itemInterface.NewItemHandler(itemService)
 	categoryHandler := categoryInterface.NewCategoryHandler(categoryService)
 
-	statusHandler := status.NewStatusHandler()
+	statusHandler := statusInterface.NewStatusHandler()
 	app := appservice.NewApp(itemHandler, statusHandler, categoryHandler)
 
 	return app

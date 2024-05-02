@@ -1,4 +1,4 @@
-package status
+package statusInterface
 
 import (
 	"github.com/gorilla/mux"

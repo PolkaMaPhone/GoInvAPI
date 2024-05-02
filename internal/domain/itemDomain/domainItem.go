@@ -1,4 +1,4 @@
-// Package item domain/item/IItem.go
+// Package itemDomain domain/item/IItem.go
 package itemDomain
 
 import (

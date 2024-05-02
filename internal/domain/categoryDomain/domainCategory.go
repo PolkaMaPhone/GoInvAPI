@@ -1,4 +1,4 @@
-// Package categoryInterface domain/categoryInterface/categoryInterface.go
+// Package categoryDomain domain/categoryDomain/domainCategory.go
 package categoryDomain
 
 import (
