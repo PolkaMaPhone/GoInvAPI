@@ -2,6 +2,7 @@ package itemInterface
 
 import (
 	"errors"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/application/dto"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
@@ -37,6 +38,16 @@ func (m *MockService) GetAllItems() ([]*itemDomain.Item, error) {
 	return args.Get(0).([]*itemDomain.Item), args.Error(1)
 }
 
+func (m *MockService) GetItemByIDWithCategory(id int32) (*dto.ItemWithCategory, error) {
+	args := m.Called(id)
+	return args.Get(0).(*dto.ItemWithCategory), args.Error(1)
+}
+
+func (m *MockService) GetAllItemsWithCategory() ([]*dto.ItemWithCategory, error) {
+	args := m.Called()
+	return args.Get(0).([]*dto.ItemWithCategory), args.Error(1)
+}
+
 func TestGetItemRoute(t *testing.T) {
 	mockHandler := new(MockItemHandler)
 	mockHandler.On("HandleGet", mock.Anything, mock.AnythingOfType("*http.Request")).Return()
@@ -50,6 +61,22 @@ func TestGetItemRoute(t *testing.T) {
 	r.ServeHTTP(rr, req)
 
 	mockHandler.AssertCalled(t, "HandleGet", rr, mock.AnythingOfType("*http.Request"))
+}
+
+func TestGetCategoryRoute(t *testing.T) {
+	mockHandler := new(MockItemHandler)
+	mockHandler.On("HandleGet", mock.Anything, mock.AnythingOfType("*http.Request")).Return()
+
+	r := mux.NewRouter()
+	mockHandler.HandleRoutes(r)
+
+	req, _ := http.NewRequest("GET", "/items/1/category", nil)
+	rr := httptest.NewRecorder()
+
+	r.ServeHTTP(rr, req)
+
+	mockHandler.AssertNotCalled(t, "HandleGet", rr, mock.AnythingOfType("*http.Request"))
+
 }
 
 func TestHandleGet_Error(t *testing.T) {
@@ -93,6 +120,22 @@ func TestHandleGetAll_Error(t *testing.T) {
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
 	router.HandleFunc("/items", handler.HandleGetAll)
+	router.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusInternalServerError, rr.Code)
+	mockService.AssertExpectations(t)
+}
+
+func TestHandler_HandleGetAllWithCategory(t *testing.T) {
+	mockService := new(MockService)
+	mockItemService := itemDomain.NewService(mockService)
+	handler := NewItemHandler(mockItemService)
+	mockService.On("GetAllItemsWithCategory").Return([]*dto.ItemWithCategory{}, errors.New("some error"))
+
+	req, _ := http.NewRequest("GET", "/items_with_category", nil)
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/items_with_category", handler.HandleGetAllWithCategory)
 	router.ServeHTTP(rr, req)
 
 	assert.Equal(t, http.StatusInternalServerError, rr.Code)
