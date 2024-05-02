@@ -1,10 +1,9 @@
 package item
 
 import (
-	"testing"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 type MockRepository struct {
