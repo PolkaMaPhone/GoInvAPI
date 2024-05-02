@@ -127,7 +127,7 @@ func TestNew(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a temporary directory within PROJECT_ROOT
-			testDir := filepath.Join(os.Getenv("PROJECT_ROOT"), "test")
+			testDir := filepath.Join(os.Getenv("PROJECT_ROOT"))
 			err := os.MkdirAll(testDir, os.ModePerm)
 			assert.NoError(t, err)
 
