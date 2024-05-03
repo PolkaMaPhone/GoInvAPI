@@ -1,3 +1,5 @@
+-- noinspection SqlResolveForFile
+
 -- noinspection SpellCheckingInspectionForFile
 
 SET statement_timeout = 0;
