@@ -26,7 +26,7 @@ func (m *MockRepository) GetItemByIDWithCategory(id int32) (*dto.ItemWithCategor
 	return args.Get(0).(*dto.ItemWithCategory), args.Error(1)
 }
 
-func (m *MockRepository) GetAllItemsWithCategory() ([]*dto.ItemWithCategory, error) {
+func (m *MockRepository) GetAllItemsWithCategories() ([]*dto.ItemWithCategory, error) {
 	args := m.Called()
 	return args.Get(0).([]*dto.ItemWithCategory), args.Error(1)
 }
@@ -127,10 +127,10 @@ func TestService_GetAllItemsWithCategory(t *testing.T) {
 			CategoryDescription: pgtype.Text{String: "CategoryDescription2", Valid: true},
 		},
 	}
-	mockRepo.On("GetAllItemsWithCategory").Return(items, nil)
+	mockRepo.On("GetAllItemsWithCategories").Return(items, nil)
 
 	service := NewService(mockRepo)
-	result, err := service.GetAllItemsWithCategory()
+	result, err := service.GetAllItemsWithCategories()
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)

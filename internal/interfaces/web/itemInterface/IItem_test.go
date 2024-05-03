@@ -43,7 +43,7 @@ func (m *MockService) GetItemByIDWithCategory(id int32) (*dto.ItemWithCategory, 
 	return args.Get(0).(*dto.ItemWithCategory), args.Error(1)
 }
 
-func (m *MockService) GetAllItemsWithCategory() ([]*dto.ItemWithCategory, error) {
+func (m *MockService) GetAllItemsWithCategories() ([]*dto.ItemWithCategory, error) {
 	args := m.Called()
 	return args.Get(0).([]*dto.ItemWithCategory), args.Error(1)
 }
@@ -130,12 +130,12 @@ func TestHandler_HandleGetAllWithCategory(t *testing.T) {
 	mockService := new(MockService)
 	mockItemService := itemDomain.NewService(mockService)
 	handler := NewItemHandler(mockItemService)
-	mockService.On("GetAllItemsWithCategory").Return([]*dto.ItemWithCategory{}, errors.New("some error"))
+	mockService.On("GetAllItemsWithCategories").Return([]*dto.ItemWithCategory{}, errors.New("some error"))
 
 	req, _ := http.NewRequest("GET", "/items_with_category", nil)
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
-	router.HandleFunc("/items_with_category", handler.HandleGetAllWithCategory)
+	router.HandleFunc("/items_with_category", handler.HandleGetAllWithCategories)
 	router.ServeHTTP(rr, req)
 
 	assert.Equal(t, http.StatusInternalServerError, rr.Code)

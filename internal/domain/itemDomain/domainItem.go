@@ -21,25 +21,17 @@ type Item struct {
 	UpdatedAt   pgtype.Timestamptz
 }
 
-type ItemWithCategory struct {
-	ItemID              int32
-	Name                string
-	Description         pgtype.Text
-	CategoryID          pgtype.Int4
-	GroupID             pgtype.Int4
-	LocationID          pgtype.Int4
-	IsStored            pgtype.Bool
-	CreatedAt           pgtype.Timestamptz
-	UpdatedAt           pgtype.Timestamptz
-	CategoryName        string
-	CategoryDescription pgtype.Text
-}
-
 type Repository interface {
-	GetAllItems() ([]*Item, error)
 	GetItemByID(id int32) (*Item, error)
-	GetAllItemsWithCategory() ([]*dto.ItemWithCategory, error)
 	GetItemByIDWithCategory(id int32) (*dto.ItemWithCategory, error)
+	//GetItemByIDWithGroup(id int32) (*dto.ItemWithGroup, error)
+	//GetItemByIDWithGroupAndCategory(id int32) (*dto.ItemWithGroupAndCategory, error)
+	//GetItemByIDWithLocation(id int32) (*dto.ItemWithLocation, error)
+
+	GetAllItems() ([]*Item, error)
+	GetAllItemsWithCategories() ([]*dto.ItemWithCategory, error)
+	//GetAllItemsWithGroups() ([]*dto.ItemWithGroup, error)
+	//GetAllItemsWithGroupsAndCategories() ([]*dto.ItemWithGroupAndCategory, error)
 }
 
 type Service struct {
@@ -66,8 +58,8 @@ func (s *Service) GetItemByID(id int32) (*Item, error) {
 	return s.repo.GetItemByID(id)
 }
 
-func (s *Service) GetAllItemsWithCategory() ([]*dto.ItemWithCategory, error) {
-	return s.repo.GetAllItemsWithCategory()
+func (s *Service) GetAllItemsWithCategories() ([]*dto.ItemWithCategory, error) {
+	return s.repo.GetAllItemsWithCategories()
 }
 
 func (s *Service) GetItemByIDWithCategory(id int32) (*dto.ItemWithCategory, error) {
@@ -162,11 +154,11 @@ func (r *Repo) GetItemByIDWithCategory(id int32) (*dto.ItemWithCategory, error) 
 	return item, nil
 }
 
-func (r *Repo) GetAllItemsWithCategory() ([]*dto.ItemWithCategory, error) {
+func (r *Repo) GetAllItemsWithCategories() ([]*dto.ItemWithCategory, error) {
 	// Create a new instance of the Queries struct
 	q := db.New(r.db)
 
-	// Call the GetAllItemsWithCategory method to retrieve all items from the database
+	// Call the GetAllItemsWithCategories method to retrieve all items from the database
 	dbItems, err := q.GetAllItemsWithCategories(context.Background())
 	if err != nil {
 		return nil, err

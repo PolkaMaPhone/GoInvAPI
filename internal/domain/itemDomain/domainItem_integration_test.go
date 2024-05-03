@@ -57,7 +57,7 @@ func TestRepo_GetAllItemsWithCategory(t *testing.T) {
 	}
 	db.Pool = pool
 	repo := NewRepository(db.Pool)
-	items, err := repo.GetAllItemsWithCategory()
+	items, err := repo.GetAllItemsWithCategories()
 
 	assert.NoError(t, err)
 	assert.NotNil(t, items)

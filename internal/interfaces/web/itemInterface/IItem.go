@@ -25,7 +25,7 @@ func (h *Handler) HandleRoutes(router *mux.Router) {
 	apiRouter.HandleFunc("/items/{item_id}", h.HandleGet).Methods("GET")
 	apiRouter.HandleFunc("/items", h.HandleGetAll).Methods("GET")
 	apiRouter.HandleFunc("/items/{item_id}/with_category", h.HandleGetWithCategory).Methods("GET")
-	apiRouter.HandleFunc("/items_with_category", h.HandleGetAllWithCategory).Methods("GET")
+	apiRouter.HandleFunc("/items_with_category", h.HandleGetAllWithCategories).Methods("GET")
 }
 
 func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
@@ -77,8 +77,8 @@ func (h *Handler) HandleGetWithCategory(w http.ResponseWriter, r *http.Request) 
 	utils.RespondWithJSON(w, http.StatusOK, foundItem)
 }
 
-func (h *Handler) HandleGetAllWithCategory(w http.ResponseWriter, _ *http.Request) {
-	items, err := h.service.GetAllItemsWithCategory()
+func (h *Handler) HandleGetAllWithCategories(w http.ResponseWriter, _ *http.Request) {
+	items, err := h.service.GetAllItemsWithCategories()
 	if err != nil {
 		middleware.ErrorLogger.Printf("Error getting items with category: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
