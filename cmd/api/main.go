@@ -4,10 +4,14 @@ import (
 	"context"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/application/appservice"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/categoryDomain"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/groupDomain"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/locationDomain"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/dbconn"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/categoryInterface"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/groupInterface"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/itemInterface"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/locationInterface"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces/web/statusInterface"
 	"log"
 	"os"
@@ -30,20 +34,31 @@ func createApp() *appservice.App {
 	// Create an instance of the repositories
 	itemRepo := itemDomain.NewRepository(db.Pool)
 	categoryRepo := categoryDomain.NewRepository(db.Pool)
+	groupRepo := groupDomain.NewRepository(db.Pool)
+	locationRepo := locationDomain.NewRepository(db.Pool)
 
 	// Create services from repositories
 	itemService := itemDomain.NewService(itemRepo)
 	categoryService := categoryDomain.NewService(categoryRepo)
+	groupService := groupDomain.NewService(groupRepo)
+	locationService := locationDomain.NewService(locationRepo)
 
 	// Create handlers from services
 	itemHandler := itemInterface.NewItemHandler(itemService)
 	categoryHandler := categoryInterface.NewCategoryHandler(categoryService)
+	groupHandler := groupInterface.NewGroupHandler(groupService)
+	locationHandler := locationInterface.NewLocationHandler(locationService)
 
 	// Create status handler
 	statusHandler := statusInterface.NewStatusHandler()
 
 	// Create New App and inject handlers
-	app := appservice.NewApp(itemHandler, categoryHandler, statusHandler)
+	app := appservice.NewApp(
+		itemHandler,
+		categoryHandler,
+		statusHandler,
+		groupHandler,
+		locationHandler)
 
 	return app
 }
