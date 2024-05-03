@@ -61,7 +61,7 @@ func (r *Repo) GetItemByID(id int32) (*Item, error) {
 		return nil, err
 	}
 
-	item := MapDBItemToDomainItem(&dbItem)
+	item, _ := MapDBItemToDomainItem(&dbItem)
 	return item, nil
 }
 
@@ -76,7 +76,7 @@ func (r *Repo) GetAllItems() ([]*Item, error) {
 	// Map the db.Item to domain.Item
 	var items []*Item
 	for _, dbItem := range dbItems {
-		item := MapDBItemToDomainItem(&dbItem)
+		item, _ := MapDBItemToDomainItem(&dbItem)
 		items = append(items, item)
 	}
 
@@ -113,6 +113,26 @@ func (r *Repo) GetAllItemsWithCategories() ([]*dto.ItemWithCategory, error) {
 	var items []*dto.ItemWithCategory
 	for _, dbItem := range dbItems {
 		item := MapDBAllItemsWithCategoriesToDTO(&dbItem)
+		items = append(items, item)
+	}
+
+	return items, nil
+}
+
+func (r *Repo) GetAllItemsWithGroups() ([]*dto.ItemWithGroup, error) {
+	// Create a new instance of the Queries struct
+	q := db.New(r.db)
+
+	// Call the GetAllItemsWithGroups method to retrieve all items from the database
+	dbItems, err := q.GetAllItemsWithGroups(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	// Map the db.ItemWithGroup to dto.ItemWithGroup
+	var items []*dto.ItemWithGroup
+	for _, dbItem := range dbItems {
+		item := MapDBAllItemsWithGroupsToDTO(&dbItem)
 		items = append(items, item)
 	}
 
