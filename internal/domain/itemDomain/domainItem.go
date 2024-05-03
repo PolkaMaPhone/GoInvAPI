@@ -5,21 +5,8 @@ import (
 	"context"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/application/dto"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/db"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
-
-type Item struct {
-	ItemID      int32
-	Name        string
-	Description pgtype.Text
-	CategoryID  pgtype.Int4
-	GroupID     pgtype.Int4
-	LocationID  pgtype.Int4
-	IsStored    pgtype.Bool
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
-}
 
 type Repository interface {
 	GetItemByID(id int32) (*Item, error)
@@ -67,35 +54,20 @@ func (s *Service) GetItemByIDWithCategory(id int32) (*dto.ItemWithCategory, erro
 }
 
 func (r *Repo) GetItemByID(id int32) (*Item, error) {
-	// Create a new instance of the Queries struct
 	q := db.New(r.db)
 
-	// Call the GetItem method to retrieve the item from the database
 	dbItem, err := q.GetItem(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
 
-	// Map the db.Item to domain.Item
-	item := &Item{
-		ItemID:      dbItem.ItemID,
-		Name:        dbItem.Name,
-		Description: dbItem.Description,
-		CategoryID:  dbItem.CategoryID,
-		GroupID:     dbItem.GroupID,
-		LocationID:  dbItem.LocationID,
-		IsStored:    dbItem.IsStored,
-		CreatedAt:   dbItem.CreatedAt,
-		UpdatedAt:   dbItem.UpdatedAt,
-	}
+	item := MapDBItemToDomainItem(&dbItem)
 	return item, nil
 }
 
 func (r *Repo) GetAllItems() ([]*Item, error) {
-	// Create a new instance of the Queries struct
 	q := db.New(r.db)
 
-	// Call the GetAllItems method to retrieve all items from the database
 	dbItems, err := q.GetAllItems(context.Background())
 	if err != nil {
 		return nil, err
@@ -104,17 +76,7 @@ func (r *Repo) GetAllItems() ([]*Item, error) {
 	// Map the db.Item to domain.Item
 	var items []*Item
 	for _, dbItem := range dbItems {
-		item := &Item{
-			ItemID:      dbItem.ItemID,
-			Name:        dbItem.Name,
-			Description: dbItem.Description,
-			CategoryID:  dbItem.CategoryID,
-			GroupID:     dbItem.GroupID,
-			LocationID:  dbItem.LocationID,
-			IsStored:    dbItem.IsStored,
-			CreatedAt:   dbItem.CreatedAt,
-			UpdatedAt:   dbItem.UpdatedAt,
-		}
+		item := MapDBItemToDomainItem(&dbItem)
 		items = append(items, item)
 	}
 
@@ -132,24 +94,7 @@ func (r *Repo) GetItemByIDWithCategory(id int32) (*dto.ItemWithCategory, error) 
 	}
 
 	// Map the db.Item to domain.Item
-	item := &dto.ItemWithCategory{
-		ItemID:              dbItem.ItemID,
-		Name:                dbItem.Name,
-		Description:         dbItem.Description,
-		CategoryID:          dbItem.CategoryID,
-		GroupID:             dbItem.GroupID,
-		LocationID:          dbItem.LocationID,
-		IsStored:            dbItem.IsStored,
-		CreatedAt:           dbItem.CreatedAt,
-		UpdatedAt:           dbItem.UpdatedAt,
-		CategoryName:        dbItem.CategoryName,
-		CategoryDescription: dbItem.CategoryDescription,
-	}
-	//if the CategoryID is null, set CategoryName to "Uncategorized"
-	if dbItem.CategoryID.Valid == false {
-		item.CategoryName = pgtype.Text{String: "Uncategorized", Valid: true}
-		item.CategoryDescription = pgtype.Text{String: "An Uncategorized Item", Valid: true}
-	}
+	item := MapDBItemWithCategoryToDTO(&dbItem)
 
 	return item, nil
 }
@@ -167,25 +112,7 @@ func (r *Repo) GetAllItemsWithCategories() ([]*dto.ItemWithCategory, error) {
 	// Map the db.ItemWithCategory to dto.ItemWithCategory
 	var items []*dto.ItemWithCategory
 	for _, dbItem := range dbItems {
-		item := &dto.ItemWithCategory{
-			ItemID:              dbItem.ItemID,
-			Name:                dbItem.Name,
-			Description:         dbItem.Description,
-			CategoryID:          dbItem.CategoryID,
-			GroupID:             dbItem.GroupID,
-			LocationID:          dbItem.LocationID,
-			IsStored:            dbItem.IsStored,
-			CreatedAt:           dbItem.CreatedAt,
-			UpdatedAt:           dbItem.UpdatedAt,
-			CategoryName:        dbItem.CategoryName,
-			CategoryDescription: dbItem.CategoryDescription,
-		}
-		//if the CategoryID is null, set CategoryName to "Uncategorized"
-		if dbItem.CategoryID.Valid == false {
-			item.CategoryName = pgtype.Text{String: "Uncategorized", Valid: true}
-			item.CategoryDescription = pgtype.Text{String: "An Uncategorized Item", Valid: true}
-		}
-
+		item := MapDBAllItemsWithCategoriesToDTO(&dbItem)
 		items = append(items, item)
 	}
 

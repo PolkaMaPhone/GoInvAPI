@@ -13,10 +13,10 @@ import (
 
 const getAllItemsWithGroupsAndCategories = `-- name: GetAllItemsWithGroupsAndCategories :many
 SELECT items.item_id, items.name, items.description, items.category_id, items.group_id, items.location_id, items.is_stored, items."createdAt", items."updatedAt",
-        categories.name        AS category_name,
-        categories.description AS category_description,
-        groups.name            AS group_name,
-        groups.description     AS group_description
+       categories.name        AS category_name,
+       categories.description AS category_description,
+       groups.name            AS group_name,
+       groups.description     AS group_description
 FROM items
          LEFT JOIN categories ON items.category_id = categories.category_id
          LEFT JOIN groups ON items.group_id = groups.group_id
