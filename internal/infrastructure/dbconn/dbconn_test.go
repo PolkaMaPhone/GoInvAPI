@@ -197,6 +197,7 @@ func TestGetPoolInstance(t *testing.T) {
 			defer func() {
 				err := os.Remove(filepath.Join(testDir, "config.json"))
 				err = os.Remove(filepath.Join(testDir, "config.json.sample"))
+				err = os.Remove(testDir)
 				if err != nil {
 					t.Fatalf("Failed to clean up: %v", err)
 				}
