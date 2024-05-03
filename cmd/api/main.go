@@ -52,7 +52,7 @@ func createApp() *appservice.App {
 	// Create status handler
 	statusHandler := statusInterface.NewStatusHandler()
 
-	// Create GetPoolInstance App and inject handlers
+	// Create New App and inject handlers
 	app := appservice.NewApp(
 		itemHandler,
 		categoryHandler,

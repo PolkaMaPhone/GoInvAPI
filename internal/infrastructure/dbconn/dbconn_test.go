@@ -164,6 +164,7 @@ func TestGetPoolInstance(t *testing.T) {
 				mockDB.On("Connect", mock.Anything).Return(fmt.Errorf("mock error"))
 			} else {
 				// Create a new pgxpool.Pool
+				//goland:noinspection SpellCheckingInspection
 				pool, err := pgxpool.New(context.Background(), "host=localhost user=yourusername password=yourpassword dbname=yourdbname port=5432")
 				if err != nil {
 					t.Fatalf("Failed to create pool: %v", err)
