@@ -1,7 +1,9 @@
 package dbconn
 
 import (
+	"context"
 	"fmt"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"os"
@@ -10,6 +12,7 @@ import (
 )
 
 type MockDB struct {
+	PgxDB
 	mock.Mock
 }
 
@@ -87,19 +90,29 @@ func TestLoadConfigFile(t *testing.T) {
 				// Set the PROJECT_ROOT environment variable to the test directory
 				err = os.Setenv("PROJECT_ROOT", testDir)
 				assert.NoError(t, err)
+
+				defer func() {
+					err := os.Remove(filepath.Join(testDir, "config.json"))
+					err = os.Remove(filepath.Join(testDir, "config.json.sample"))
+					if err != nil {
+						t.Fatalf("Failed to clean up: %v", err)
+					}
+				}()
 			}
 		})
 	}
 }
 
-func TestNew(t *testing.T) {
+func TestGetPoolInstance(t *testing.T) {
 	tests := []struct {
 		name        string
 		configFile  string
 		expectError bool
+		ProjectRoot string
 	}{
 		{
-			name: "connection fails",
+			name:        "connection fails",
+			ProjectRoot: "/test",
 			configFile: `{
 				"DbUser": "postgres",
 				"DbPassword": "wrongpassword",
@@ -150,27 +163,43 @@ func TestNew(t *testing.T) {
 			if tt.expectError {
 				mockDB.On("Connect", mock.Anything).Return(fmt.Errorf("mock error"))
 			} else {
+				// Create a new pgxpool.Pool
+				pool, err := pgxpool.New(context.Background(), "host=localhost user=yourusername password=yourpassword dbname=yourdbname port=5432")
+				if err != nil {
+					t.Fatalf("Failed to create pool: %v", err)
+				}
+				// Assign the pool to the Pool field of the MockDB object
+				mockDB.Pool = pool
 				mockDB.On("Connect", mock.Anything).Return(nil)
 			}
 
-			// Call the New function with the loaded configuration and the mock DB
-			db, err := New(config, mockDB)
+			// Call the GetPoolInstance function with the loaded configuration and the mock DB
+			db1, err := GetPoolInstance(config, mockDB)
 
 			// Check if the function returns an error as expected
 			if tt.expectError {
 				assert.Error(t, err)
-				assert.Nil(t, db)
+				assert.Nil(t, db1)
 			} else {
 				assert.NoError(t, err)
-				assert.NotNil(t, db)
+				assert.NotNil(t, db1)
+
+				// Call GetPoolInstance again and check that it returns the same instance
+				db2, err := GetPoolInstance(config, mockDB)
+				assert.NoError(t, err)
+				assert.NotNil(t, db2)
+				assert.Equal(t, db1, db2)
 			}
 
 			// Assert that the Connect method was called with the correct arguments
 			mockDB.AssertCalled(t, "Connect", mock.Anything)
-
-			// Remove the temporary directory
-			err = os.RemoveAll(testDir)
-			assert.NoError(t, err)
+			defer func() {
+				err := os.Remove(filepath.Join(testDir, "config.json"))
+				err = os.Remove(filepath.Join(testDir, "config.json.sample"))
+				if err != nil {
+					t.Fatalf("Failed to clean up: %v", err)
+				}
+			}()
 		})
 	}
 }

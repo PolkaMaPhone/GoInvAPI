@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"os"
 	"path/filepath"
+	"sync"
 )
 
 type Config struct {
@@ -61,10 +62,14 @@ func LoadConfigFile() (Config, error) {
 
 type DB interface {
 	Connect(connectionString string) error
+	GetOnce() *sync.Once
+	GetPool() *pgxpool.Pool
+	SetPool(pool *pgxpool.Pool)
 }
 
 type PgxDB struct {
 	Pool *pgxpool.Pool
+	once sync.Once
 }
 
 func (db *PgxDB) Connect(connectionString string) error {
@@ -77,13 +82,33 @@ func (db *PgxDB) Connect(connectionString string) error {
 	return nil
 }
 
-func New(config Config, db DB) (*DB, error) {
-	connectionString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", config.DbUser, config.DbPassword, config.DbHost, config.DbPort, config.DbName, config.DbSchema)
+func (db *PgxDB) GetOnce() *sync.Once {
+	return &db.once
+}
 
-	err := db.Connect(connectionString)
-	if err != nil {
-		return nil, fmt.Errorf("unable to connect to database: %v", err)
-	}
+func (db *PgxDB) GetPool() *pgxpool.Pool {
+	return db.Pool
+}
 
-	return &db, nil
+func (db *PgxDB) SetPool(pool *pgxpool.Pool) {
+	db.Pool = pool
+}
+
+var (
+	poolInstance *pgxpool.Pool
+)
+
+func GetPoolInstance(config Config, db DB) (*pgxpool.Pool, error) {
+	var err error
+	db.GetOnce().Do(func() {
+		connectionString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s",
+			config.DbUser, config.DbPassword, config.DbHost, config.DbPort, config.DbName, config.DbSchema)
+		err = db.Connect(connectionString)
+		if err != nil {
+			err = fmt.Errorf("unable to connect to database: %v", err)
+			return
+		}
+		poolInstance = db.GetPool()
+	})
+	return poolInstance, err
 }

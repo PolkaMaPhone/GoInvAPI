@@ -26,7 +26,7 @@ func createApp() *appservice.App {
 	}
 
 	db := &dbconn.PgxDB{}
-	_, err = dbconn.New(config, db)
+	_, err = dbconn.GetPoolInstance(config, db)
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
@@ -52,7 +52,7 @@ func createApp() *appservice.App {
 	// Create status handler
 	statusHandler := statusInterface.NewStatusHandler()
 
-	// Create New App and inject handlers
+	// Create GetPoolInstance App and inject handlers
 	app := appservice.NewApp(
 		itemHandler,
 		categoryHandler,

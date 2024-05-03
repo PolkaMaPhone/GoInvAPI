@@ -13,11 +13,12 @@ func TestRepo_GetItemByID(t *testing.T) {
 		t.Fatalf("Unable to load configuration: %v\n", err)
 	}
 	db := &dbconn.PgxDB{}
-	_, err = dbconn.New(config, db)
+	pool, err := dbconn.GetPoolInstance(config, db)
+	_, err = dbconn.GetPoolInstance(config, db)
 	if err != nil {
 		t.Fatalf("Unable to connect to database: %v\n", err)
 	}
-
+	db.Pool = pool
 	repo := NewRepository(db.Pool)
 	item, err := repo.GetItemByID(1)
 
@@ -31,11 +32,12 @@ func TestRepo_GetAllItems(t *testing.T) {
 		t.Fatalf("Unable to load configuration: %v\n", err)
 	}
 	db := &dbconn.PgxDB{}
-	_, err = dbconn.New(config, db)
+	pool, err := dbconn.GetPoolInstance(config, db)
+	_, err = dbconn.GetPoolInstance(config, db)
 	if err != nil {
 		t.Fatalf("Unable to connect to database: %v\n", err)
 	}
-
+	db.Pool = pool
 	repo := NewRepository(db.Pool)
 	items, err := repo.GetAllItems()
 
@@ -48,11 +50,12 @@ func TestRepo_GetAllItemsWithCategory(t *testing.T) {
 		t.Fatalf("Unable to load configuration: %v\n", err)
 	}
 	db := &dbconn.PgxDB{}
-	_, err = dbconn.New(config, db)
+	pool, err := dbconn.GetPoolInstance(config, db)
+	_, err = dbconn.GetPoolInstance(config, db)
 	if err != nil {
 		t.Fatalf("Unable to connect to database: %v\n", err)
 	}
-
+	db.Pool = pool
 	repo := NewRepository(db.Pool)
 	items, err := repo.GetAllItemsWithCategory()
 
@@ -66,11 +69,12 @@ func TestRepo_GetItemByIDWithCategory(t *testing.T) {
 		t.Fatalf("Unable to load configuration: %v\n", err)
 	}
 	db := &dbconn.PgxDB{}
-	_, err = dbconn.New(config, db)
+	pool, err := dbconn.GetPoolInstance(config, db)
+	_, err = dbconn.GetPoolInstance(config, db)
 	if err != nil {
 		t.Fatalf("Unable to connect to database: %v\n", err)
 	}
-
+	db.Pool = pool
 	repo := NewRepository(db.Pool)
 	item, err := repo.GetItemByIDWithCategory(1)
 

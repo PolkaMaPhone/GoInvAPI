@@ -12,7 +12,7 @@ func TestRepo_GetGroupByID(t *testing.T) {
 		t.Fatalf("Unable to load configuration: %v\n", err)
 	}
 	db := &dbconn.PgxDB{}
-	_, err = dbconn.New(config, db)
+	_, err = dbconn.GetPoolInstance(config, db)
 	if err != nil {
 		t.Fatalf("Unable to connect to database: %v\n", err)
 	}
@@ -30,11 +30,12 @@ func TestRepo_GetAllGroups(t *testing.T) {
 		t.Fatalf("Unable to load configuration: %v\n", err)
 	}
 	db := &dbconn.PgxDB{}
-	_, err = dbconn.New(config, db)
+	pool, err := dbconn.GetPoolInstance(config, db)
+	_, err = dbconn.GetPoolInstance(config, db)
 	if err != nil {
 		t.Fatalf("Unable to connect to database: %v\n", err)
 	}
-
+	db.Pool = pool
 	repo := NewRepository(db.Pool)
 	groups, err := repo.GetAllGroups()
 
