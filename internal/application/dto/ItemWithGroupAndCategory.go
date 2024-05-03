@@ -4,7 +4,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type ItemWithCategory struct {
+type ItemWithGroupAndCategory struct {
 	ItemID              int32
 	Name                string
 	Description         pgtype.Text
@@ -16,4 +16,6 @@ type ItemWithCategory struct {
 	UpdatedAt           pgtype.Timestamptz
 	CategoryName        pgtype.Text
 	CategoryDescription pgtype.Text
+	GroupName           pgtype.Text
+	GroupDescription    pgtype.Text
 }
