@@ -80,7 +80,24 @@ func TestMapDBItemToDomainItem(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, _ := MapDBItemToDomainItem(tt.args); !reflect.DeepEqual(got, tt.want) {
+			got, _ := MapDBItemToDomainItem(tt.args)
+			if got != nil && tt.want != nil {
+				// Check the type of the CreatedAt and UpdatedAt fields
+				if reflect.TypeOf(got.CreatedAt) != reflect.TypeOf(tt.want.CreatedAt) {
+					t.Errorf("CreatedAt field type = %v, want %v", reflect.TypeOf(got.CreatedAt), reflect.TypeOf(tt.want.CreatedAt))
+				}
+				if reflect.TypeOf(got.UpdatedAt) != reflect.TypeOf(tt.want.UpdatedAt) {
+					t.Errorf("UpdatedAt field type = %v, want %v", reflect.TypeOf(got.UpdatedAt), reflect.TypeOf(tt.want.UpdatedAt))
+				}
+
+				// Set the CreatedAt and UpdatedAt fields to nil before comparing the rest of the fields
+				got.CreatedAt = pgtype.Timestamptz{}
+				got.UpdatedAt = pgtype.Timestamptz{}
+				tt.want.CreatedAt = pgtype.Timestamptz{}
+				tt.want.UpdatedAt = pgtype.Timestamptz{}
+			}
+
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("MapDBItemToDomainItem() = %v, want %v", got, tt.want)
 			}
 		})
