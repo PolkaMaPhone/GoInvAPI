@@ -1,7 +1,9 @@
 package interfaces
 
-import "github.com/gorilla/mux"
+import (
+	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/customRouter"
+)
 
 type Handler interface {
-	HandleRoutes(router *mux.Router)
+	HandleRoutes(router *customRouter.CustomRouter)
 }

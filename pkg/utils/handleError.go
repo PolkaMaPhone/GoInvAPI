@@ -52,6 +52,9 @@ func (e *ServerErrorType) Error() string {
 	return HTTPErrorMessages[ServerError]
 }
 
+// HandleHTTPError ok is false, this is a pretty safe type assertion to make
+//
+//goland:noinspection GoTypeAssertionOnErrors
 func HandleHTTPError(w http.ResponseWriter, err error, defaultStatusCode int) {
 	statusCode := defaultStatusCode
 	if httpError, ok := err.(*NoResultsForParameterError); ok {
