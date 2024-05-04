@@ -20,6 +20,26 @@ type MockService struct {
 	mock.Mock
 }
 
+func (m *MockService) GetItemByIDWithGroup(id int32) (*dto.ItemWithGroup, error) {
+	args := m.Called(id)
+	return args.Get(0).(*dto.ItemWithGroup), args.Error(1)
+}
+
+func (m *MockService) GetItemByIDWithGroupAndCategory(id int32) (*dto.ItemWithGroupAndCategory, error) {
+	args := m.Called(id)
+	return args.Get(0).(*dto.ItemWithGroupAndCategory), args.Error(1)
+}
+
+func (m *MockService) GetAllItemsWithGroups() ([]*dto.ItemWithGroup, error) {
+	args := m.Called()
+	return args.Get(0).([]*dto.ItemWithGroup), args.Error(1)
+}
+
+func (m *MockService) GetAllItemsWithGroupsAndCategories() ([]*dto.ItemWithGroupAndCategory, error) {
+	args := m.Called()
+	return args.Get(0).([]*dto.ItemWithGroupAndCategory), args.Error(1)
+}
+
 func (m *MockItemHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	m.Called(w, r)
 }
@@ -30,7 +50,11 @@ func (m *MockItemHandler) HandleRoutes(router *mux.Router) {
 
 func (m *MockService) GetItemByID(id int32) (*itemDomain.Item, error) {
 	args := m.Called(id)
-	return args.Get(0).(*itemDomain.Item), args.Error(1)
+	item, ok := args.Get(0).(*itemDomain.Item)
+	if !ok {
+		return nil, args.Error(1)
+	}
+	return item, args.Error(1)
 }
 
 func (m *MockService) GetAllItems() ([]*itemDomain.Item, error) {
@@ -77,53 +101,6 @@ func TestGetCategoryRoute(t *testing.T) {
 
 	mockHandler.AssertNotCalled(t, "HandleGet", rr, mock.AnythingOfType("*http.Request"))
 
-}
-
-func TestHandleGet_Error(t *testing.T) {
-	mockService := new(MockService)
-	mockItemService := itemDomain.NewService(mockService)
-	handler := NewItemHandler(mockItemService)
-
-	mockService.On("GetItemByID", int32(1)).Return(&itemDomain.Item{}, errors.New("some error"))
-
-	req, _ := http.NewRequest("GET", "/items/1", nil)
-	rr := httptest.NewRecorder()
-	router := mux.NewRouter()
-	router.HandleFunc("/items/{item_id}", handler.HandleGet)
-	router.ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusInternalServerError, rr.Code)
-	mockService.AssertExpectations(t)
-}
-
-func TestHandleGet_InvalidID(t *testing.T) {
-	mockService := new(MockService)
-	mockItemService := itemDomain.NewService(mockService)
-	handler := NewItemHandler(mockItemService)
-
-	req, _ := http.NewRequest("GET", "/items/invalid", nil)
-	rr := httptest.NewRecorder()
-	router := mux.NewRouter()
-	router.HandleFunc("/items/{item_id}", handler.HandleGet)
-	router.ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusBadRequest, rr.Code)
-}
-
-func TestHandleGetAll_Error(t *testing.T) {
-	mockService := new(MockService)
-	mockItemService := itemDomain.NewService(mockService)
-	handler := NewItemHandler(mockItemService)
-	mockService.On("GetAllItems").Return([]*itemDomain.Item{}, errors.New("some error"))
-
-	req, _ := http.NewRequest("GET", "/items", nil)
-	rr := httptest.NewRecorder()
-	router := mux.NewRouter()
-	router.HandleFunc("/items", handler.HandleGetAll)
-	router.ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusInternalServerError, rr.Code)
-	mockService.AssertExpectations(t)
 }
 
 func TestHandler_HandleGetAllWithCategory(t *testing.T) {

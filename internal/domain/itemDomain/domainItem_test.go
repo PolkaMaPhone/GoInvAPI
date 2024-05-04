@@ -8,6 +8,14 @@ import (
 	"testing"
 )
 
+// TODO - Add Test for Item With Group
+// TODO - Add test for Item with Group and Category
+// TODO - Add test for All Items With Groups
+// TODO - Add test for All Items With Groups and Categories
+
+// TODO - Eventually add test for Get Item with location
+// TODO - Eventually add test for All Items with location
+
 type MockRepository struct {
 	mock.Mock
 }
@@ -17,18 +25,39 @@ func (m *MockRepository) GetItemByID(id int32) (*Item, error) {
 	return args.Get(0).(*Item), args.Error(1)
 }
 
-func (m *MockRepository) GetAllItems() ([]*Item, error) {
-	args := m.Called()
-	return args.Get(0).([]*Item), args.Error(1)
-}
 func (m *MockRepository) GetItemByIDWithCategory(id int32) (*dto.ItemWithCategory, error) {
 	args := m.Called(id)
 	return args.Get(0).(*dto.ItemWithCategory), args.Error(1)
 }
 
+func (m *MockRepository) GetItemByIDWithGroup(id int32) (*dto.ItemWithGroup, error) {
+	args := m.Called(id)
+	return args.Get(0).(*dto.ItemWithGroup), args.Error(1)
+}
+
+func (m *MockRepository) GetItemByIDWithGroupAndCategory(id int32) (*dto.ItemWithGroupAndCategory, error) {
+	args := m.Called(id)
+	return args.Get(0).(*dto.ItemWithGroupAndCategory), args.Error(1)
+}
+
+func (m *MockRepository) GetAllItems() ([]*Item, error) {
+	args := m.Called()
+	return args.Get(0).([]*Item), args.Error(1)
+}
+
 func (m *MockRepository) GetAllItemsWithCategories() ([]*dto.ItemWithCategory, error) {
 	args := m.Called()
 	return args.Get(0).([]*dto.ItemWithCategory), args.Error(1)
+}
+
+func (m *MockRepository) GetAllItemsWithGroups() ([]*dto.ItemWithGroup, error) {
+	args := m.Called()
+	return args.Get(0).([]*dto.ItemWithGroup), args.Error(1)
+}
+
+func (m *MockRepository) GetAllItemsWithGroupsAndCategories() ([]*dto.ItemWithGroupAndCategory, error) {
+	args := m.Called()
+	return args.Get(0).([]*dto.ItemWithGroupAndCategory), args.Error(1)
 }
 
 func TestService_GetItemByID(t *testing.T) {
@@ -42,21 +71,6 @@ func TestService_GetItemByID(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, item.ItemID, result.ItemID)
-
-	mockRepo.AssertExpectations(t)
-}
-
-func TestService_GetAllItems(t *testing.T) {
-	mockRepo := new(MockRepository)
-	items := []*Item{{ItemID: 1}, {ItemID: 2}}
-	mockRepo.On("GetAllItems").Return(items, nil)
-
-	service := NewService(mockRepo)
-	result, err := service.GetAllItems()
-
-	assert.NoError(t, err)
-	assert.NotNil(t, result)
-	assert.Equal(t, len(items), len(result))
 
 	mockRepo.AssertExpectations(t)
 }
@@ -95,6 +109,21 @@ func TestService_GetItemByIDWithCategory(t *testing.T) {
 
 	mockRepo.AssertExpectations(t)
 
+}
+
+func TestService_GetAllItems(t *testing.T) {
+	mockRepo := new(MockRepository)
+	items := []*Item{{ItemID: 1}, {ItemID: 2}}
+	mockRepo.On("GetAllItems").Return(items, nil)
+
+	service := NewService(mockRepo)
+	result, err := service.GetAllItems()
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, len(items), len(result))
+
+	mockRepo.AssertExpectations(t)
 }
 
 func TestService_GetAllItemsWithCategory(t *testing.T) {
