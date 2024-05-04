@@ -51,7 +51,7 @@ func (h *Handler) handleGetItemErrors(w http.ResponseWriter, err error, item int
 	if err != nil {
 		// Check if the error is a pgx.ErrNoRows error
 		if errors.Is(err, pgx.ErrNoRows) {
-			httpError := &utils.NoResultsForParameterError{ParameterName: "item_id", ID: strconv.Itoa(int(itemID)), StatusCode: http.StatusNoContent}
+			httpError := &utils.NoResultsForParameterError{ParameterName: "item_id", ID: strconv.Itoa(int(itemID)), StatusCode: http.StatusNotFound}
 			utils.HandleHTTPError(w, httpError, httpError.StatusCode)
 		} else {
 			// For all other errors, return a 500 status code and a generic server error message
@@ -61,7 +61,7 @@ func (h *Handler) handleGetItemErrors(w http.ResponseWriter, err error, item int
 	}
 
 	if item == nil {
-		httpError := &utils.NoResultsForParameterError{ParameterName: "item_id", ID: strconv.Itoa(int(itemID)), StatusCode: http.StatusNoContent}
+		httpError := &utils.NoResultsForParameterError{ParameterName: "item_id", ID: strconv.Itoa(int(itemID)), StatusCode: http.StatusNotFound}
 		utils.HandleHTTPError(w, httpError, httpError.StatusCode)
 		return true
 	}
@@ -73,7 +73,7 @@ func (h *Handler) handleGetAllErrors(w http.ResponseWriter, err error, items int
 	if err != nil {
 		// Check if the error is a sql.ErrNoRows error
 		if errors.Is(err, pgx.ErrNoRows) {
-			httpError := &utils.NoResultsForParameterError{ParameterName: "items", ID: "all", StatusCode: http.StatusNoContent}
+			httpError := &utils.NoResultsForParameterError{ParameterName: "items", ID: "all", StatusCode: http.StatusNotFound}
 			utils.HandleHTTPError(w, httpError, httpError.StatusCode)
 		} else {
 			// For all other errors, return a 500 status code and a generic server error message
@@ -85,7 +85,7 @@ func (h *Handler) handleGetAllErrors(w http.ResponseWriter, err error, items int
 	// Check if items is a slice
 	if itemsSlice, ok := items.([]interface{}); ok {
 		if itemsSlice == nil || len(itemsSlice) == 0 {
-			httpError := &utils.NoResultsForParameterError{ParameterName: "items", ID: "all", StatusCode: http.StatusNoContent}
+			httpError := &utils.NoResultsForParameterError{ParameterName: "items", ID: "all", StatusCode: http.StatusNotFound}
 			utils.HandleHTTPError(w, httpError, httpError.StatusCode)
 			return true
 		}

@@ -75,7 +75,7 @@ func TestHandleGet(t *testing.T) {
 		{name: "getItem_ValidID2", route: "/items/2", expectedId: 2, expectedStatus: http.StatusOK, expectedBody: `{"ItemID":2,"Name":"","Description":null,"CategoryID":null,"GroupID":null,"LocationID":null,"IsStored":null,"CreatedAt":null,"UpdatedAt":null}`},
 
 		// Failed test cases
-		{name: "getItem_InvalidID_NotFound", route: "/items/999", expectedId: 999, expectedStatus: http.StatusNoContent, expectedBody: fmt.Sprintf(utils.HTTPErrorMessages["NoResultsForParameter"], "item_id", "999"), expectedErr: &utils.NoResultsForParameterError{ParameterName: "item_id", ID: "999", StatusCode: http.StatusNoContent}},
+		{name: "getItem_InvalidID_NotFound", route: "/items/999", expectedId: 999, expectedStatus: http.StatusNotFound, expectedBody: fmt.Sprintf(utils.HTTPErrorMessages["NoResultsForParameter"], "item_id", "999"), expectedErr: &utils.NoResultsForParameterError{ParameterName: "item_id", ID: "999", StatusCode: http.StatusNotFound}},
 		{name: "getItem_InvalidID_Format", route: "/items/invalid", expectedId: 0, expectedStatus: http.StatusBadRequest, expectedBody: fmt.Sprintf(utils.HTTPErrorMessages["InvalidParameter"], "item_id"), expectedErr: &utils.InvalidParameterError{ParameterName: "item_id"}},
 		{name: "getItem_ValidID_DatabaseError", route: "/items/3", expectedId: 3, expectedStatus: http.StatusInternalServerError, expectedBody: utils.HTTPErrorMessages[utils.ServerError], expectedErr: &utils.ServerErrorType{}},
 	}
