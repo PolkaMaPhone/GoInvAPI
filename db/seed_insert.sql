@@ -14,153 +14,153 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 INSERT INTO test_seed.categories (category_id, name, description, "createdAt", "updatedAt")
-VALUES (1, 'Sample Category 1', 'Description for Sample Category 1', '2024-04-30 02:59:40.212+00',
-        '2024-04-30 02:59:40.212+00');
+VALUES (1, 'Sample Category 1', 'Description for Sample Category 1', NOW(),
+        NOW());
 INSERT INTO test_seed.categories (category_id, name, description, "createdAt", "updatedAt")
-VALUES (2, 'Sample Category 2', 'Description for Sample Category 2', '2024-04-30 02:59:40.212+00',
-        '2024-04-30 02:59:40.212+00');
+VALUES (2, 'Sample Category 2', 'Description for Sample Category 2', NOW(),
+        NOW());
 
 INSERT INTO test_seed.groups (group_id, name, description, "createdAt", "updatedAt")
-VALUES (1, 'Sample Group 1', 'Description for Sample Group 1', '2024-04-30 02:59:40.216+00',
-        '2024-04-30 02:59:40.216+00');
+VALUES (1, 'Sample Group 1', 'Description for Sample Group 1', NOW(),
+        NOW());
 INSERT INTO test_seed.groups (group_id, name, description, "createdAt", "updatedAt")
-VALUES (2, 'Sample Group 2', 'Description for Sample Group 2', '2024-04-30 02:59:40.216+00',
-        '2024-04-30 02:59:40.216+00');
+VALUES (2, 'Sample Group 2', 'Description for Sample Group 2', NOW(),
+        NOW());
 INSERT INTO test_seed.groups (group_id, name, description, "createdAt", "updatedAt")
-VALUES (3, 'Ungrouped', 'This item does not belong to any specific group.', '2024-04-30 02:59:40.216+00',
-        '2024-04-30 02:59:40.216+00');
+VALUES (3, 'Ungrouped', 'This item does not belong to any specific group.', NOW(),
+        NOW());
 
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (1, 'Sample Item 111', 'Description for Sample Item 1-1-1', 1, 1, 1, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (1, 'Sample Item 111', 'Description for Sample Item 1-1-1', 1, 1, 1, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (2, 'Sample Item 112', 'Description for Sample Item 1-1-2', 1, 1, 2, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (2, 'Sample Item 112', 'Description for Sample Item 1-1-2', 1, 1, 2, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (3, 'Sample Item 113', 'Description for Sample Item 1-1-3', 1, 1, 3, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (3, 'Sample Item 113', 'Description for Sample Item 1-1-3', 1, 1, 3, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (4, 'Sample Item 114', 'Description for Sample Item 1-1-4', 1, 1, 4, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (4, 'Sample Item 114', 'Description for Sample Item 1-1-4', 1, 1, 4, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (5, 'Sample Item 121', 'Description for Sample Item 1-2-1', 1, 2, 1, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (5, 'Sample Item 121', 'Description for Sample Item 1-2-1', 1, 2, 1, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (6, 'Sample Item 122', 'Description for Sample Item 1-2-2', 1, 2, 2, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (6, 'Sample Item 122', 'Description for Sample Item 1-2-2', 1, 2, 2, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (7, 'Sample Item 123', 'Description for Sample Item 1-2-3', 1, 2, 3, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (7, 'Sample Item 123', 'Description for Sample Item 1-2-3', 1, 2, 3, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (8, 'Sample Item 124', 'Description for Sample Item 1-2-4', 1, 2, 4, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (8, 'Sample Item 124', 'Description for Sample Item 1-2-4', 1, 2, 4, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (9, 'Sample Item 131', 'Description for Sample Item 1-3-1', 1, 3, 1, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (9, 'Sample Item 131', 'Description for Sample Item 1-3-1', 1, 3, 1, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (10, 'Sample Item 132', 'Description for Sample Item 1-3-2', 1, 3, 2, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (10, 'Sample Item 132', 'Description for Sample Item 1-3-2', 1, 3, 2, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (11, 'Sample Item 133', 'Description for Sample Item 1-3-3', 1, 3, 3, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (11, 'Sample Item 133', 'Description for Sample Item 1-3-3', 1, 3, 3, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (12, 'Sample Item 134', 'Description for Sample Item 1-3-4', 1, 3, 4, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (12, 'Sample Item 134', 'Description for Sample Item 1-3-4', 1, 3, 4, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (13, 'Sample Item 211', 'Description for Sample Item 2-1-1', 2, 1, 1, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (13, 'Sample Item 211', 'Description for Sample Item 2-1-1', 2, 1, 1, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (14, 'Sample Item 212', 'Description for Sample Item 2-1-2', 2, 1, 2, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (14, 'Sample Item 212', 'Description for Sample Item 2-1-2', 2, 1, 2, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (15, 'Sample Item 213', 'Description for Sample Item 2-1-3', 2, 1, 3, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (15, 'Sample Item 213', 'Description for Sample Item 2-1-3', 2, 1, 3, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (16, 'Sample Item 214', 'Description for Sample Item 2-1-4', 2, 1, 4, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (16, 'Sample Item 214', 'Description for Sample Item 2-1-4', 2, 1, 4, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (17, 'Sample Item 221', 'Description for Sample Item 2-2-1', 2, 2, 1, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (17, 'Sample Item 221', 'Description for Sample Item 2-2-1', 2, 2, 1, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (18, 'Sample Item 222', 'Description for Sample Item 2-2-2', 2, 2, 2, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (18, 'Sample Item 222', 'Description for Sample Item 2-2-2', 2, 2, 2, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (19, 'Sample Item 223', 'Description for Sample Item 2-2-3', 2, 2, 3, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (19, 'Sample Item 223', 'Description for Sample Item 2-2-3', 2, 2, 3, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (20, 'Sample Item 224', 'Description for Sample Item 2-2-4', 2, 2, 4, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (20, 'Sample Item 224', 'Description for Sample Item 2-2-4', 2, 2, 4, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (21, 'Sample Item 231', 'Description for Sample Item 2-3-1', 2, 3, 1, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (21, 'Sample Item 231', 'Description for Sample Item 2-3-1', 2, 3, 1, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (22, 'Sample Item 232', 'Description for Sample Item 2-3-2', 2, 3, 2, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (22, 'Sample Item 232', 'Description for Sample Item 2-3-2', 2, 3, 2, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (23, 'Sample Item 233', 'Description for Sample Item 2-3-3', 2, 3, 3, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (23, 'Sample Item 233', 'Description for Sample Item 2-3-3', 2, 3, 3, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
-VALUES (24, 'Sample Item 234', 'Description for Sample Item 2-3-4', 2, 3, 4, false, '2024-04-30 02:59:40.225+00',
-        '2024-04-30 02:59:40.225+00');
+VALUES (24, 'Sample Item 234', 'Description for Sample Item 2-3-4', 2, 3, 4, false, NOW(),
+        NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
 VALUES (25, 'Uncategorized Item 1', 'Description for Uncategorized Item 1', NULL, NULL, NULL, false,
-        '2024-04-30 02:59:40.23+00', '2024-04-30 02:59:40.23+00');
+        NOW(), NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
 VALUES (26, 'Uncategorized Item 2', 'Description for Uncategorized Item 2', NULL, NULL, NULL, false,
-        '2024-04-30 02:59:40.23+00', '2024-04-30 02:59:40.23+00');
+        NOW(), NOW());
 INSERT INTO test_seed.items (item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt",
                              "updatedAt")
 VALUES (27, 'Uncategorized Item 3', 'Description for Uncategorized Item 3', NULL, NULL, NULL, false,
-        '2024-04-30 02:59:40.23+00', '2024-04-30 02:59:40.23+00');
+        NOW(), NOW());
 
 INSERT INTO test_seed.locations (location_id, tub_id, shelf_id, "createdAt", "updatedAt")
-VALUES (1, NULL, 1, '2024-04-30 02:59:40.218+00', '2024-04-30 02:59:40.218+00');
+VALUES (1, NULL, 1, NOW(), NOW());
 INSERT INTO test_seed.locations (location_id, tub_id, shelf_id, "createdAt", "updatedAt")
-VALUES (2, NULL, 2, '2024-04-30 02:59:40.218+00', '2024-04-30 02:59:40.218+00');
+VALUES (2, NULL, 2, NOW(), NOW());
 INSERT INTO test_seed.locations (location_id, tub_id, shelf_id, "createdAt", "updatedAt")
-VALUES (3, 1, 1, '2024-04-30 02:59:40.218+00', '2024-04-30 02:59:40.218+00');
+VALUES (3, 1, 1, NOW(), NOW());
 INSERT INTO test_seed.locations (location_id, tub_id, shelf_id, "createdAt", "updatedAt")
-VALUES (4, 2, 2, '2024-04-30 02:59:40.218+00', '2024-04-30 02:59:40.218+00');
+VALUES (4, 2, 2, NOW(), NOW());
 INSERT INTO test_seed.locations (location_id, tub_id, shelf_id, "createdAt", "updatedAt")
-VALUES (0, 0, 0, '2024-04-30 02:59:40.218+00', '2024-04-30 02:59:40.218+00');
+VALUES (0, 0, 0, NOW(), NOW());
 
 INSERT INTO test_seed.shelves (shelf_id, label, description, location_id, "createdAt", "updatedAt")
-VALUES (1, 'Shelf 1', NULL, 1, '2024-04-30 02:59:40.219+00', '2024-04-30 02:59:40.219+00');
+VALUES (1, 'Shelf 1', NULL, 1, NOW(), NOW());
 INSERT INTO test_seed.shelves (shelf_id, label, description, location_id, "createdAt", "updatedAt")
-VALUES (2, 'Shelf 2', NULL, 2, '2024-04-30 02:59:40.219+00', '2024-04-30 02:59:40.219+00');
+VALUES (2, 'Shelf 2', NULL, 2, NOW(), NOW());
 INSERT INTO test_seed.shelves (shelf_id, label, description, location_id, "createdAt", "updatedAt")
-VALUES (3, 'Uncategorized', NULL, 0, '2024-04-30 02:59:40.219+00', '2024-04-30 02:59:40.219+00');
+VALUES (3, 'Uncategorized', NULL, 0, NOW(), NOW());
 
 INSERT INTO test_seed.tubs (tub_id, label, shelf_id, location_id, "createdAt", "updatedAt")
-VALUES (1, 'Tub 1', 1, 3, '2024-04-30 02:59:40.221+00', '2024-04-30 02:59:40.221+00');
+VALUES (1, 'Tub 1', 1, 3, NOW(), NOW());
 INSERT INTO test_seed.tubs (tub_id, label, shelf_id, location_id, "createdAt", "updatedAt")
-VALUES (2, 'Tub 2', 2, 4, '2024-04-30 02:59:40.221+00', '2024-04-30 02:59:40.221+00');
+VALUES (2, 'Tub 2', 2, 4, NOW(), NOW());
 
 SELECT pg_catalog.setval('test_seed.categories_category_id_seq', 2, true);
 
