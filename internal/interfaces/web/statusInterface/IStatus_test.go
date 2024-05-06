@@ -16,9 +16,9 @@ func TestHandleRoutes(t *testing.T) {
 		expectedStatus int
 		expectedBody   string
 	}{
-		// TODO - Fix Non Existent route test
 		{name: "HandleStatus", method: http.MethodGet, route: "/status", expectedStatus: http.StatusOK, expectedBody: "Server is up and running"},
-		//{name: "NonExistentRoute", method: http.MethodGet, route: "/api/non_existent_route", expectedStatus: http.StatusNotFound, expectedBody: "404 page not found"},
+		{name: "NonExistentRoute", method: http.MethodGet, route: "/api/non_existent_route", expectedStatus: http.StatusNotFound, expectedBody: "404 page not found\n"},
+		{name: "MethodNotAllowed", method: http.MethodPost, route: "/status", expectedStatus: http.StatusMethodNotAllowed, expectedBody: "method 'POST' is not allowed for route '/status'\n"},
 	}
 
 	for _, tt := range testCases {
