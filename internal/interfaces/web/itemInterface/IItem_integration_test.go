@@ -3,7 +3,9 @@ package itemInterface
 import (
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/customRouter"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/dbconn"
 	"github.com/go-chi/chi/v5"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,20 +19,31 @@ func TestItemIntegration(t *testing.T) {
 		status int
 	}{
 		{name: "HandleGet", method: http.MethodGet, route: "/items/1", status: http.StatusOK},
+		{name: "HandleGetAll", method: http.MethodGet, route: "/items", status: http.StatusOK},
+		{name: "HandleGet_NonExistentItem", method: http.MethodGet, route: "/items/9999", status: http.StatusNotFound},
+		{name: "HandleGet_InvalidID", method: http.MethodGet, route: "/items/invalid", status: http.StatusBadRequest},
 		{name: "NotAllowedMethod", method: http.MethodPost, route: "/items/1", status: http.StatusMethodNotAllowed},
-		// TODO - Add more test cases...
 	}
 
-	mockService := &MockService{}
-	mockService.On("GetItemByID", int32(1)).Return(&itemDomain.Item{}, nil)
-	service := itemDomain.NewService(mockService)
-	handler := NewItemHandler(service)
+	config, err := dbconn.LoadConfigFile()
+	if err != nil {
+		log.Fatalf("Unable to load config: %v\n", err)
+	}
+
+	db := &dbconn.PgxDB{}
+	_, err = dbconn.GetPoolInstance(config, db)
+	if err != nil {
+		log.Fatalf("Unable to connect to database: %v\n", err)
+	}
+	itemRepo := itemDomain.NewRepository(db.Pool)
+	itemService := itemDomain.NewService(itemRepo)
+	itemHandler := NewItemHandler(itemService)
 
 	router := chi.NewRouter()
 	r := &customRouter.CustomRouter{
 		Mux: router,
 	}
-	handler.HandleRoutes(r)
+	itemHandler.HandleRoutes(r)
 
 	server := httptest.NewServer(router)
 	defer server.Close()
