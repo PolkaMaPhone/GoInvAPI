@@ -3,8 +3,8 @@ package appservice
 import (
 	"context"
 	"errors"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/customRouter"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/interfaces"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
@@ -15,7 +15,7 @@ type App struct {
 }
 
 func NewApp(handlers ...interfaces.Handler) *App {
-	router := mux.NewRouter()
+	router := customRouter.NewDefaultRouter()
 	for _, h := range handlers {
 		h.HandleRoutes(router)
 	}

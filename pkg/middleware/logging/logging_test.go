@@ -1,4 +1,4 @@
-package middleware
+package logging
 
 import (
 	"net/http"
@@ -66,7 +66,7 @@ func TestLoggingMiddleware(t *testing.T) {
 				}
 			}(test.envVar)
 
-			handler := LoggingMiddleware(test.severity)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+			handler := LogRequestDuration(test.severity)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
 
 			handler.ServeHTTP(rr, req)
 		})

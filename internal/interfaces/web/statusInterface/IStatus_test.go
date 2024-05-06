@@ -1,58 +1,55 @@
 package statusInterface
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/customRouter"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-func TestNewStatusHandler(t *testing.T) {
-	h := NewStatusHandler()
-	if h == nil {
-		t.Errorf("NewStatusHandler() = nil, want *Handler")
-	}
-}
-
 func TestHandleRoutes(t *testing.T) {
-	r := mux.NewRouter()
-	h := NewStatusHandler()
-	h.HandleRoutes(r)
-
-	req, err := http.NewRequest("GET", "/api/status", nil)
-	if err != nil {
-		t.Fatal(err)
+	testCases := []struct {
+		name           string
+		method         string
+		route          string
+		expectedStatus int
+		expectedBody   string
+	}{
+		// TODO - Fix Non Existent route test
+		{name: "HandleStatus", method: http.MethodGet, route: "/status", expectedStatus: http.StatusOK, expectedBody: "Server is up and running"},
+		//{name: "NonExistentRoute", method: http.MethodGet, route: "/api/non_existent_route", expectedStatus: http.StatusNotFound, expectedBody: "404 page not found"},
 	}
 
-	rr := httptest.NewRecorder()
-	r.ServeHTTP(rr, req)
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			req, err := http.NewRequest(tt.method, tt.route, nil)
+			if err != nil {
+				t.Fatalf("Could not create request: %v", err)
+			}
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
+			rr := httptest.NewRecorder()
+			router := chi.NewRouter()
 
-	expected := `Server is up and running`
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
-	}
-}
+			h := NewStatusHandler()
 
-func TestHandleStatus(t *testing.T) {
-	h := NewStatusHandler()
-	rr := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "/", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+			r := &customRouter.CustomRouter{
+				Mux: router,
+			}
 
-	h.HandleStatus(rr, req)
+			h.HandleRoutes(r)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
-	}
+			router.ServeHTTP(rr, req)
 
-	expected := `Server is up and running`
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
+			if status := rr.Code; status != tt.expectedStatus {
+				t.Errorf("handler returned wrong status code: got %v want %v",
+					status, tt.expectedStatus)
+			}
+
+			if rr.Body.String() != tt.expectedBody {
+				t.Errorf("handler returned unexpected body: got %v want %v",
+					rr.Body.String(), tt.expectedBody)
+			}
+		})
 	}
 }

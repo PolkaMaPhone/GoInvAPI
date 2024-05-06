@@ -1,57 +1,41 @@
 package customRouter
 
 import (
-	"context"
-	"errors"
-	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware"
-	"github.com/gorilla/mux"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/logging"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/validation"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"golang.org/x/time/rate"
 	"net/http"
-	"time"
 )
 
 type CustomRouter struct {
-	*mux.Router
+	*chi.Mux
 	limiter *rate.Limiter
+	prefix  string
 }
 
-func NewRouter() *CustomRouter {
-	r := mux.NewRouter()
-	limiter := rate.NewLimiter(1, 5) // Adjust to your needs
-	customRouter := &CustomRouter{r, limiter}
-	customRouter.NotFoundHandler = http.HandlerFunc(customRouter.handleNotFound)
-	customRouter.MethodNotAllowedHandler = http.HandlerFunc(customRouter.handleMethodNotAllowed)
+func NewDefaultRouter() *CustomRouter {
+	return NewRouter("INFO", "/api")
+}
+
+func NewRouter(logLevel string, prefix string) *CustomRouter {
+	r := chi.NewRouter()
+	limiter := rate.NewLimiter(1, 5)
+
+	// Use middleware
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(logging.LogRequestDuration(logLevel))
+	r.Use(validation.ValidateRoute)
+	r.Use(validation.ValidateContentType)
+
+	// Create a sub-router
+	subRouter := chi.NewRouter()
+	r.Mount(prefix, subRouter)
+
+	customRouter := &CustomRouter{subRouter, limiter, prefix}
 	return customRouter
-}
-
-func (cr *CustomRouter) handleNotFound(w http.ResponseWriter, r *http.Request) {
-	middleware.ErrorLogger.Printf("Invalid route accessed: %s", r.URL.Path)
-	http.Error(w, "Invalid route. Please check the URL and try again.", http.StatusNotFound)
-}
-
-func (cr *CustomRouter) handleMethodNotAllowed(w http.ResponseWriter, r *http.Request) {
-	middleware.ErrorLogger.Printf("Method not allowed: %s", r.Method)
-	http.Error(w, "Method not allowed. Please check the HTTP method and try again.", http.StatusMethodNotAllowed)
-}
-
-func (cr *CustomRouter) handleRequestTimeout(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	select {
-	case <-ctx.Done():
-		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			middleware.ErrorLogger.Printf("Request timeout: %s", r.URL.Path)
-			http.Error(w, "Request timeout. Please try again later.", http.StatusRequestTimeout)
-		}
-	case <-time.After(5 * time.Second): // Replace with your desired timeout duration
-		// Continue processing the request
-	}
-}
-
-func (cr *CustomRouter) handleUnsupportedMediaType(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Content-Type") != "application/json" { // Replace with your supported media types
-		middleware.ErrorLogger.Printf("Unsupported media type: %s", r.Header.Get("Content-Type"))
-		http.Error(w, "Unsupported media type. Please check the 'Content-Type' header and try again.", http.StatusUnsupportedMediaType)
-	}
 }
 
 func (cr *CustomRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -60,5 +44,9 @@ func (cr *CustomRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cr.Router.ServeHTTP(w, r)
+	cr.Mux.ServeHTTP(w, r)
+}
+
+func (cr *CustomRouter) GetFullPath(path string) string {
+	return cr.prefix + path
 }

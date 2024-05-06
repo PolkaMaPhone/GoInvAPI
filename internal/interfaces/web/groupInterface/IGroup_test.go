@@ -2,26 +2,18 @@ package groupInterface
 
 import (
 	"errors"
+	"fmt"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/groupDomain"
-	"github.com/gorilla/mux"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/customRouter"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/utils"
+	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
-
-type MockGroupHandler struct {
-	mock.Mock
-}
-
-func (m *MockGroupHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
-	m.Called(w, r)
-}
-
-func (m *MockGroupHandler) HandleRoutes(router *mux.Router) {
-	router.HandleFunc("/groups/{group_id}", m.HandleGet).Methods("GET")
-}
 
 type MockService struct {
 	mock.Mock
@@ -29,7 +21,11 @@ type MockService struct {
 
 func (m *MockService) GetGroupByID(id int32) (*groupDomain.Group, error) {
 	args := m.Called(id)
-	return args.Get(0).(*groupDomain.Group), args.Error(1)
+	group, ok := args.Get(0).(*groupDomain.Group)
+	if !ok {
+		return nil, args.Error(1)
+	}
+	return group, args.Error(1)
 }
 
 func (m *MockService) GetAllGroups() ([]*groupDomain.Group, error) {
@@ -37,66 +33,84 @@ func (m *MockService) GetAllGroups() ([]*groupDomain.Group, error) {
 	return args.Get(0).([]*groupDomain.Group), args.Error(1)
 }
 
-func generateRequest(t *testing.T, method, url string) (*httptest.ResponseRecorder, *http.Request) {
-	req, err := http.NewRequest(method, url, nil)
-	require.NoError(t, err)
-	rr := httptest.NewRecorder()
-	return rr, req
-}
+func TestHandleRoutes(t *testing.T) {
+	testCases := []struct {
+		name          string
+		method        string
+		route         string
+		groupID       int
+		err           error
+		expStatus     int
+		mockSetupFunc func(ms *MockService)
+	}{
+		{name: "HandleGet", method: http.MethodGet, route: "/groups/%d", groupID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
+			ms.On("GetGroupByID", int32(1)).Return(&groupDomain.Group{GroupID: 1}, nil)
+		}},
+		{name: "HandleGet_Error", method: http.MethodGet, route: "/groups/%d", groupID: 1, err: errors.New("some error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+			ms.On("GetGroupByID", int32(1)).Return(&groupDomain.Group{}, errors.New("some error"))
+		}},
+		{name: "HandleGet_InvalidID", method: http.MethodGet, route: "/groups/invalid", groupID: 0, err: nil, expStatus: http.StatusBadRequest, mockSetupFunc: func(ms *MockService) {}},
+		{name: "HandleGetAll_Error", method: http.MethodGet, route: "/groups", groupID: 0, err: errors.New("some error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+			ms.On("GetAllGroups").Return([]*groupDomain.Group{}, errors.New("some error"))
+		}},
+		{name: "NonExistentRoute", method: http.MethodGet, route: "/non_existent_route", groupID: 0, err: nil, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {}},
+		{name: "NotAllowedMethod", method: http.MethodPost, route: "/groups/%d", groupID: 1, err: &utils.MethodNotAllowedError{Method: "POST", Route: "/api/groups/%d"}, expStatus: http.StatusMethodNotAllowed, mockSetupFunc: func(ms *MockService) {}},
+		{name: "ServiceError", method: http.MethodGet, route: "/groups/%d", groupID: 1, err: errors.New("internal server error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+			ms.On("GetGroupByID", int32(1)).Return(nil, errors.New("some other error"))
+		}},
+		{name: "NoResults", method: http.MethodGet, route: "/groups/%d", groupID: 999, err: &utils.NoResultsForParameterError{ParameterName: "group_id", ID: "999", StatusCode: http.StatusNotFound}, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {
+			ms.On("GetGroupByID", int32(999)).Return(nil, pgx.ErrNoRows)
+		}},
+		{name: "UnexpectedError", method: http.MethodGet, route: "/groups/%d", groupID: 1, err: errors.New("unexpected error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+			ms.On("GetGroupByID", int32(1)).Return(nil, errors.New("unexpected error"))
+		}},
+	}
 
-func TestGetGroupRoute(t *testing.T) {
-	mockHandler := new(MockGroupHandler)
-	mockHandler.On("HandleGet", mock.Anything, mock.AnythingOfType("*http.Request")).Return()
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
 
-	r := mux.NewRouter()
-	mockHandler.HandleRoutes(r)
+			mockService := &MockService{}
+			service := groupDomain.NewService(mockService)
+			handler := NewGroupHandler(service)
+			tt.mockSetupFunc(mockService)
 
-	rr, req := generateRequest(t, "GET", "/groups/1")
-	r.ServeHTTP(rr, req)
+			route := tt.route
+			if tt.groupID != 0 {
+				route = fmt.Sprintf(tt.route, tt.groupID)
+			}
 
-	mockHandler.AssertCalled(t, "HandleGet", rr, mock.AnythingOfType("*http.Request"))
-}
+			req, err := http.NewRequest(tt.method, route, nil)
+			if err != nil {
+				t.Fatalf("could not create request: %v", err)
+			}
 
-func TestHandleGet_Error(t *testing.T) {
-	mockService := new(MockService)
-	mockGroupService := groupDomain.NewService(mockService)
-	handler := NewGroupHandler(mockGroupService)
+			responseRecorder := httptest.NewRecorder()
+			router := chi.NewRouter()
 
-	mockService.On("GetGroupByID", int32(1)).Return(&groupDomain.Group{}, errors.New("some error"))
+			r := &customRouter.CustomRouter{
+				Mux: router,
+			}
+			handler.HandleRoutes(r)
+			router.ServeHTTP(responseRecorder, req)
 
-	rr, req := generateRequest(t, "GET", "/groups/1")
-	router := mux.NewRouter()
-	router.HandleFunc("/groups/{group_id}", handler.HandleGet)
-	router.ServeHTTP(rr, req)
+			// Log request
+			log.Printf("Request Method: %s\n", req.Method)
+			log.Printf("Request URL: %s\n", req.URL)
+			log.Printf("Request Headers: %s\n", req.Header)
 
-	require.Equal(t, http.StatusInternalServerError, rr.Code)
-	mockService.AssertExpectations(t)
-}
+			// Log response
+			log.Printf("Response Status Code: %d\n", responseRecorder.Code)
+			log.Printf("Response Body: %s\n", responseRecorder.Body.String())
 
-func TestHandleGet_InvalidID(t *testing.T) {
-	mockService := new(MockService)
-	mockGroupService := groupDomain.NewService(mockService)
-	handler := NewGroupHandler(mockGroupService)
+			// Check the status code
+			if status := responseRecorder.Code; status != tt.expStatus {
+				t.Errorf("handler returned wrong status code: got %v want %v", status, tt.expStatus)
+			}
 
-	rr, req := generateRequest(t, "GET", "/groups/invalid")
-	router := mux.NewRouter()
-	router.HandleFunc("/groups/{group_id}", handler.HandleGet)
-	router.ServeHTTP(rr, req)
-
-	require.Equal(t, http.StatusBadRequest, rr.Code)
-}
-
-func TestHandleGetAll_Error(t *testing.T) {
-	mockService := new(MockService)
-	mockGroupService := groupDomain.NewService(mockService)
-	handler := NewGroupHandler(mockGroupService)
-	mockService.On("GetAllGroups").Return([]*groupDomain.Group{}, errors.New("some error"))
-
-	rr, req := generateRequest(t, "GET", "/groups")
-	router := mux.NewRouter()
-	router.HandleFunc("/groups", handler.HandleGetAll)
-	router.ServeHTTP(rr, req)
-
-	require.Equal(t, http.StatusInternalServerError, rr.Code)
-	mockService.AssertExpectations(t)
+			// Check the error returned by the handler
+			if err != nil && err.Error() != tt.err.Error() {
+				t.Errorf("handler returned wrong error: got %v want %v", err, tt.err)
+			}
+		})
+	}
 }

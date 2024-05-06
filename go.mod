@@ -3,7 +3,7 @@ module github.com/PolkaMaPhone/GoInvAPI
 go 1.22.2
 
 require (
-	github.com/gorilla/mux v1.8.1
+	github.com/go-chi/chi/v5 v5.0.5
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/time v0.5.0
@@ -20,6 +20,6 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
 	"github.com/PolkaMaPhone/GoInvAPI/pkg/utils"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 	"net/http"
 	"net/http/httptest"
@@ -25,9 +25,9 @@ type MockSetupFunc func(ms *MockService, tc TestCase)
 
 func RunHandlerTests(t *testing.T, methodName string, testCases []TestCase, mockSetupFunc MockSetupFunc) {
 	// Map of method names to handler methods
-	handlerMethods := map[string]func(*Handler, *mux.Router){
-		"GetItemByID": func(h *Handler, router *mux.Router) {
-			router.HandleFunc("/items/{item_id}", h.HandleGet).Methods("GET")
+	handlerMethods := map[string]func(*Handler, *chi.Mux){
+		"GetItemByID": func(h *Handler, router *chi.Mux) {
+			router.Get("/items/{item_id}", h.HandleGet)
 		},
 	}
 
@@ -39,7 +39,7 @@ func RunHandlerTests(t *testing.T, methodName string, testCases []TestCase, mock
 			}
 
 			rr := httptest.NewRecorder()
-			router := mux.NewRouter()
+			router := chi.NewRouter()
 
 			ms := new(MockService)
 			mockSetupFunc(ms, tt)
@@ -75,15 +75,17 @@ func TestHandleGet(t *testing.T) {
 		{name: "getItem_ValidID2", route: "/items/2", expectedId: 2, expectedStatus: http.StatusOK, expectedBody: `{"ItemID":2,"Name":"","Description":null,"CategoryID":null,"GroupID":null,"LocationID":null,"IsStored":null,"CreatedAt":null,"UpdatedAt":null}`},
 
 		// Failed test cases
-		{name: "getItem_InvalidID_NotFound", route: "/items/999", expectedId: 999, expectedStatus: http.StatusNotFound, expectedBody: fmt.Sprintf(utils.HTTPErrorMessages["NoResultsForParameter"], "item_id", "999"), expectedErr: &utils.NoResultsForParameterError{ParameterName: "item_id", ID: "999", StatusCode: http.StatusNotFound}},
+		{name: "getItem_InvalidID_NotFound", route: "/items/999", expectedId: 999, expectedStatus: http.StatusNotFound, expectedBody: fmt.Sprintf(utils.HTTPErrorMessages["NoResultsForParameter"], "item", "999"), expectedErr: &utils.NoResultsForParameterError{ParameterName: "item", ID: "999"}},
 		{name: "getItem_InvalidID_Format", route: "/items/invalid", expectedId: 0, expectedStatus: http.StatusBadRequest, expectedBody: fmt.Sprintf(utils.HTTPErrorMessages["InvalidParameter"], "item_id"), expectedErr: &utils.InvalidParameterError{ParameterName: "item_id"}},
 		{name: "getItem_ValidID_DatabaseError", route: "/items/3", expectedId: 3, expectedStatus: http.StatusInternalServerError, expectedBody: utils.HTTPErrorMessages[utils.ServerError], expectedErr: &utils.ServerErrorType{}},
 	}
 	mockSetupFunc := func(ms *MockService, tc TestCase) {
-		// If the expected error is not nil and is a database error, return nil for the item
-		if _, ok := tc.expectedErr.(*utils.ServerErrorType); ok {
+		// It's ok to allow for this type assertion because ok is the false path and will not execute 'dangerous' code
+		if //goland:noinspection GoTypeAssertionOnErrors
+		_, ok := tc.expectedErr.(*utils.ServerErrorType); ok {
 			ms.On("GetItemByID", tc.expectedId).Return(nil, tc.expectedErr)
-		} else if _, ok := tc.expectedErr.(*utils.NoResultsForParameterError); ok {
+		} else if //goland:noinspection GoTypeAssertionOnErrors
+		_, ok := tc.expectedErr.(*utils.NoResultsForParameterError); ok {
 			// Ensure a valid item is returned for the test case
 			ms.On("GetItemByID", tc.expectedId).Return(nil, pgx.ErrNoRows)
 		} else {

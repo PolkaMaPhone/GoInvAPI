@@ -14,8 +14,6 @@ import (
 // TODO - Implement GetAllItemsWithDetails
 // TODO - Implement GetItemWithDetailByID
 
-// TODO - Maybe refactor by type into other files but the same package?
-
 type Repository interface {
 	GetItemByID(id int32) (*Item, error)
 	GetItemByIDWithCategory(id int32) (*dto.ItemWithCategory, error)

@@ -2,12 +2,14 @@ package locationInterface
 
 import (
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/locationDomain"
-	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/customRouter"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/validation"
 	"github.com/PolkaMaPhone/GoInvAPI/pkg/utils"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"net/http"
-	"strconv"
 )
+
+const idParameterName = "location_id"
 
 type Handler struct {
 	service *locationDomain.Service
@@ -19,26 +21,26 @@ func NewLocationHandler(s *locationDomain.Service) *Handler {
 	}
 }
 
-func (h *Handler) HandleRoutes(router *mux.Router) {
-	apiRouter := router.PathPrefix("/api").Subrouter()
-	apiRouter.Use(middleware.LoggingMiddleware("INFO"))
-	apiRouter.HandleFunc("/locations/{location_id}", h.HandleGet).Methods("GET")
-	apiRouter.HandleFunc("/locations", h.HandleGetAll).Methods("GET")
+func (h *Handler) HandleRoutes(apiRouter *customRouter.CustomRouter) {
+	r := chi.NewRouter()
+	r.Use(validation.ValidateMethod(http.MethodGet))
+	r.Get("/", h.HandleGet)
+	apiRouter.Mount(apiRouter.GetFullPath("/locations/{location_id}"), r)
+
+	r = chi.NewRouter()
+	r.Use(validation.ValidateMethod(http.MethodGet))
+	r.Get("/", h.HandleGetAll)
+	apiRouter.Mount(apiRouter.GetFullPath("/locations"), r)
 }
 
 func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	locationID, err := strconv.Atoi(vars["location_id"])
+	locationID, err := utils.GetIDFromRequest(w, r, idParameterName)
 	if err != nil {
-		middleware.ErrorLogger.Printf("Error parsing location_id: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	foundLocation, err := h.service.GetLocationByID(int32(locationID))
-	if err != nil {
-		middleware.ErrorLogger.Printf("Error getting location: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	foundLocation, err := h.service.GetLocationByID(locationID)
+	if utils.HandleGetByIDErrors(w, err, foundLocation, locationID, "location") {
 		return
 	}
 
@@ -47,9 +49,7 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) HandleGetAll(w http.ResponseWriter, _ *http.Request) {
 	locations, err := h.service.GetAllLocations()
-	if err != nil {
-		middleware.ErrorLogger.Printf("Error getting locations: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if utils.HandleGetAllErrors(w, err, locations, "locations") {
 		return
 	}
 

@@ -1,4 +1,4 @@
-package middleware
+package logging
 
 import (
 	"log"
@@ -17,10 +17,9 @@ func init() {
 	InfoLogger = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
 	WarningLogger = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
 	ErrorLogger = log.New(os.Stderr, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
-
 }
 
-func LoggingMiddleware(severity string) func(next http.Handler) http.Handler {
+func LogRequestDuration(severity string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()

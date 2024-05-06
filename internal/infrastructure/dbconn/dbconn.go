@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"os"
 	"path/filepath"
@@ -47,7 +47,7 @@ func LoadConfigFile() (Config, error) {
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			middleware.WarningLogger.Printf("Failed to close the file: %v", err)
+			logging.WarningLogger.Printf("Failed to close the file: %v", err)
 		}
 	}(file)
 

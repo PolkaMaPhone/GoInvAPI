@@ -5,13 +5,13 @@ import (
 	"errors"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/application/dto"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/db"
-	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/logging"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func MapDBItemToDomainItem(dbItem *db.Item) (*Item, error) {
 	if dbItem == nil {
-		middleware.ErrorLogger.Println("Failed to map db.Item to domain.Item: dbItem is nil")
+		logging.ErrorLogger.Println("Failed to map db.Item to domain.Item: dbItem is nil")
 		return nil, errors.New("dbItem cannot be nil")
 	}
 	return &Item{
@@ -77,7 +77,7 @@ func convertToDTOItemWithGroupAndCategory(domainItem *ItemWithGroupAndCategory) 
 	}
 }
 
-func convertToDTOItemWithLocation(domainItem *ItemWithLocation) *dto.ItemWithLocation {
+func _(domainItem *ItemWithLocation) *dto.ItemWithLocation {
 	return &dto.ItemWithLocation{
 		ItemID:      domainItem.ItemID,
 		Name:        domainItem.Name,
@@ -95,7 +95,7 @@ func convertToDTOItemWithLocation(domainItem *ItemWithLocation) *dto.ItemWithLoc
 
 func MapDBItemWithCategoryToDTO(dbItem *db.GetItemWithCategoryRow) *dto.ItemWithCategory {
 	if dbItem == nil {
-		middleware.ErrorLogger.Println("Failed to map db.GetItemWithCategoryRow to dto.ItemWithCategory: dbItem is nil")
+		logging.ErrorLogger.Println("Failed to map db.GetItemWithCategoryRow to dto.ItemWithCategory: dbItem is nil")
 		return nil
 	}
 	domainItem := &ItemWithCategory{
@@ -120,7 +120,7 @@ func MapDBItemWithCategoryToDTO(dbItem *db.GetItemWithCategoryRow) *dto.ItemWith
 
 func MapDBItemWithGroupToDTO(dbItem *db.GetItemWithGroupRow) *dto.ItemWithGroup {
 	if dbItem == nil {
-		middleware.ErrorLogger.Println("Failed to map db.GetItemWithGroupRow to dto.ItemWithGroup: dbItem is nil")
+		logging.ErrorLogger.Println("Failed to map db.GetItemWithGroupRow to dto.ItemWithGroup: dbItem is nil")
 		return nil
 	}
 	domainItem := &ItemWithGroup{
@@ -146,7 +146,7 @@ func MapDBItemWithGroupToDTO(dbItem *db.GetItemWithGroupRow) *dto.ItemWithGroup 
 
 func MapDBItemWithGroupAndCategoryToDTO(dbItem *db.GetItemWithGroupAndCategoryRow) *dto.ItemWithGroupAndCategory {
 	if dbItem == nil {
-		middleware.ErrorLogger.Println("Failed to map db.GetItemWithGroupAndCategoryRow to dto.ItemWithGroupAndCategory: dbItem is nil")
+		logging.ErrorLogger.Println("Failed to map db.GetItemWithGroupAndCategoryRow to dto.ItemWithGroupAndCategory: dbItem is nil")
 		return nil
 	}
 	domainItem := &ItemWithGroupAndCategory{
@@ -198,7 +198,7 @@ func MapDBItemWithGroupAndCategoryToDTO(dbItem *db.GetItemWithGroupAndCategoryRo
 
 func MapDBAllItemsWithCategoriesToDTO(dbItem *db.GetAllItemsWithCategoriesRow) *dto.ItemWithCategory {
 	if dbItem == nil {
-		middleware.ErrorLogger.Println("Failed to map db.GetAllItemsWithCategoriesRow to dto.ItemWithCategory: dbItem is nil")
+		logging.ErrorLogger.Println("Failed to map db.GetAllItemsWithCategoriesRow to dto.ItemWithCategory: dbItem is nil")
 		return nil
 	}
 	domainItem := &ItemWithCategory{
@@ -224,7 +224,7 @@ func MapDBAllItemsWithCategoriesToDTO(dbItem *db.GetAllItemsWithCategoriesRow) *
 
 func MapDBAllItemsWithGroupsToDTO(dbItem *db.GetAllItemsWithGroupsRow) *dto.ItemWithGroup {
 	if dbItem == nil {
-		middleware.ErrorLogger.Println("Failed to map db.GetAllItemsWithGroupsRow to dto.ItemWithGroup: dbItem is nil")
+		logging.ErrorLogger.Println("Failed to map db.GetAllItemsWithGroupsRow to dto.ItemWithGroup: dbItem is nil")
 		return nil
 	}
 	domainItem := &ItemWithGroup{
@@ -250,7 +250,7 @@ func MapDBAllItemsWithGroupsToDTO(dbItem *db.GetAllItemsWithGroupsRow) *dto.Item
 
 func MapDBAllItemsWithGroupsAndCategoriesToDTO(dbItem *db.GetAllItemsWithGroupsAndCategoriesRow) *dto.ItemWithGroupAndCategory {
 	if dbItem == nil {
-		middleware.ErrorLogger.Println("Failed to map db.GetAllItemsWithGroupsAndCategoriesRow to dto.ItemWithGroupAndCategory: dbItem is nil")
+		logging.ErrorLogger.Println("Failed to map db.GetAllItemsWithGroupsAndCategoriesRow to dto.ItemWithGroupAndCategory: dbItem is nil")
 		return nil
 	}
 	domainItem := &ItemWithGroupAndCategory{
