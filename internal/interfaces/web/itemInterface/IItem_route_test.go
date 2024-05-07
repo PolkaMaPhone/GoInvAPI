@@ -25,39 +25,39 @@ func TestHandleRoutes(t *testing.T) {
 		expStatus     int
 		mockSetupFunc func(ms *MockService)
 	}{
-		{name: "HandleGet", method: http.MethodGet, route: "/items/%d", itemID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGet", method: http.MethodGet, route: "/api/items/%d", itemID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetItemByID", int32(1)).Return(&itemDomain.Item{ItemID: 1}, nil)
 		}},
-		{name: "HandleGetWithCategory", method: http.MethodGet, route: "/items/%d/with_category", itemID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGetWithCategory", method: http.MethodGet, route: "/api/items/%d/with_category", itemID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetItemByIDWithCategory", int32(1)).Return(&dto.ItemWithCategory{ItemID: 1}, nil)
 		}},
-		{name: "HandleGetWithGroup", method: http.MethodGet, route: "/items/%d/with_group", itemID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGetWithGroup", method: http.MethodGet, route: "/api/items/%d/with_group", itemID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetItemByIDWithGroup", int32(1)).Return(&dto.ItemWithGroup{ItemID: 1}, nil)
 		}},
-		{name: "HandleGetWithGroupAndCategory", method: http.MethodGet, route: "/items/%d/with_group_and_category", itemID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGetWithGroupAndCategory", method: http.MethodGet, route: "/api/items/%d/with_group_and_category", itemID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetItemByIDWithGroupAndCategory", int32(1)).Return(&dto.ItemWithGroupAndCategory{ItemID: 1}, nil)
 		}},
-		{name: "HandleGetAll", method: http.MethodGet, route: "/items", itemID: 0, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGetAll", method: http.MethodGet, route: "/api/items", itemID: 0, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetAllItems").Return([]*itemDomain.Item{{ItemID: int32(1)}, {ItemID: int32(2)}}, nil)
 		}},
-		{name: "HandleGetAllWithCategories", method: http.MethodGet, route: "/items_with_category", itemID: 0, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGetAllWithCategories", method: http.MethodGet, route: "/api/items/with_category", itemID: 0, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetAllItemsWithCategories").Return([]*dto.ItemWithCategory{{ItemID: int32(1)}, {ItemID: int32(2)}}, nil)
 		}},
-		{name: "HandleGetAllWithGroups", method: http.MethodGet, route: "/items_with_group", itemID: 0, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGetAllWithGroups", method: http.MethodGet, route: "/api/items/with_group", itemID: 0, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetAllItemsWithGroups").Return([]*dto.ItemWithGroup{{ItemID: int32(1)}, {ItemID: int32(2)}}, nil)
 		}},
-		{name: "HandleGetAllWithGroupsAndCategories", method: http.MethodGet, route: "/items_with_group_and_category", itemID: 0, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGetAllWithGroupsAndCategories", method: http.MethodGet, route: "/api/items/with_group_and_category", itemID: 0, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetAllItemsWithGroupsAndCategories").Return([]*dto.ItemWithGroupAndCategory{{ItemID: int32(1)}, {ItemID: int32(2)}}, nil)
 		}},
-		{name: "NonExistentRoute", method: http.MethodGet, route: "/non_existent_route", itemID: 0, err: nil, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {}},
-		{name: "NotAllowedMethod", method: http.MethodPost, route: "/items/%d", itemID: 1, err: &utils.MethodNotAllowedError{Method: "POST", Route: "/api/items/%d"}, expStatus: http.StatusMethodNotAllowed, mockSetupFunc: func(ms *MockService) {}},
-		{name: "ServiceError", method: http.MethodGet, route: "/items/%d", itemID: 1, err: errors.New("internal server error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+		{name: "NonExistentRoute", method: http.MethodGet, route: "/api/non_existent_route", itemID: 0, err: nil, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {}},
+		{name: "NotAllowedMethod", method: http.MethodPost, route: "/api/items/%d", itemID: 1, err: &utils.MethodNotAllowedError{Method: "POST", Route: "/api/items/%d"}, expStatus: http.StatusMethodNotAllowed, mockSetupFunc: func(ms *MockService) {}},
+		{name: "ServiceError", method: http.MethodGet, route: "/api/items/%d", itemID: 1, err: errors.New("internal server error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetItemByID", int32(1)).Return(nil, errors.New("some other error"))
 		}},
-		{name: "NoResults", method: http.MethodGet, route: "/items/%d", itemID: 999, err: &utils.NoResultsForParameterError{ParameterName: "item_id", ID: "999", StatusCode: http.StatusNotFound}, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {
+		{name: "NoResults", method: http.MethodGet, route: "/api/items/%d", itemID: 999, err: &utils.NoResultsForParameterError{ParameterName: "item_id", ID: "999", StatusCode: http.StatusNotFound}, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetItemByID", int32(999)).Return(nil, pgx.ErrNoRows)
 		}},
-		{name: "UnexpectedError", method: http.MethodGet, route: "/items/%d", itemID: 1, err: errors.New("unexpected error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+		{name: "UnexpectedError", method: http.MethodGet, route: "/api/items/%d", itemID: 1, err: errors.New("unexpected error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetItemByID", int32(1)).Return(nil, errors.New("unexpected error"))
 		}},
 	}

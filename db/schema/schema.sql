@@ -4,8 +4,8 @@ create table item_history
     item_id     integer,
     date        date,
     notes       text,
-    "createdAt" timestamp with time zone not null,
-    "updatedAt" timestamp with time zone not null
+    "createdAt" timestamp with time zone not null default NOW(),
+    "updatedAt" timestamp with time zone not null default NOW()
 );
 
 alter table item_history
@@ -18,8 +18,8 @@ create table transactions
     type           varchar(50),
     timestamp      timestamp,
     user_id        integer,
-    "createdAt"    timestamp with time zone not null,
-    "updatedAt"    timestamp with time zone not null
+    "createdAt" timestamp with time zone not null default NOW(),
+    "updatedAt" timestamp with time zone not null default NOW()
 );
 
 alter table transactions
@@ -31,8 +31,8 @@ create table categories
         primary key,
     name        varchar(255)             not null,
     description text,
-    "createdAt" timestamp with time zone not null,
-    "updatedAt" timestamp with time zone not null
+    "createdAt" timestamp with time zone not null default NOW(),
+    "updatedAt" timestamp with time zone not null default NOW()
 );
 
 alter table categories
@@ -44,8 +44,8 @@ create table groups
         primary key,
     name        varchar(255)             not null,
     description text,
-    "createdAt" timestamp with time zone not null,
-    "updatedAt" timestamp with time zone not null
+    "createdAt" timestamp with time zone not null default NOW(),
+    "updatedAt" timestamp with time zone not null default NOW()
 );
 
 alter table groups
@@ -57,8 +57,8 @@ create table locations
         primary key,
     tub_id      integer,
     shelf_id    integer,
-    "createdAt" timestamp with time zone not null,
-    "updatedAt" timestamp with time zone not null
+    "createdAt" timestamp with time zone not null default NOW(),
+    "updatedAt" timestamp with time zone not null default NOW()
 );
 
 alter table locations
@@ -80,8 +80,8 @@ create table items
         references locations
             on update cascade on delete cascade,
     is_stored   boolean default false,
-    "createdAt" timestamp with time zone not null,
-    "updatedAt" timestamp with time zone not null
+    "createdAt" timestamp with time zone not null default NOW(),
+    "updatedAt" timestamp with time zone not null default NOW()
 );
 
 alter table items
@@ -96,8 +96,8 @@ create table shelves
     location_id integer
                                          references locations
                                              on update cascade on delete set null,
-    "createdAt" timestamp with time zone not null,
-    "updatedAt" timestamp with time zone not null
+    "createdAt" timestamp with time zone not null default NOW(),
+    "updatedAt" timestamp with time zone not null default NOW()
 );
 
 alter table shelves
@@ -114,8 +114,8 @@ create table tubs
     location_id integer
         references locations
             on update cascade on delete cascade,
-    "createdAt" timestamp with time zone not null,
-    "updatedAt" timestamp with time zone not null
+    "createdAt" timestamp with time zone not null default NOW(),
+    "updatedAt" timestamp with time zone not null default NOW()
 );
 
 alter table tubs

@@ -7,27 +7,19 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
-const deleteItem = `-- name: DeleteItem :exec
+const deleteItem = `-- name: DeleteItem :execresult
 
-DO
-$$
-    BEGIN
-        DELETE
-        FROM items
-        WHERE item_id = $1
-        RETURNING *;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE NOTICE 'Delete operation failed for item_id: %', $1;
-            ROLLBACK;
-    END
-$$
+DELETE
+FROM items
+WHERE item_id = $1
+RETURNING item_id, name, description, category_id, group_id, location_id, is_stored, "createdAt", "updatedAt"
 `
 
 // noinspection SqlResolveForFile
-func (q *Queries) DeleteItem(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, deleteItem)
-	return err
+func (q *Queries) DeleteItem(ctx context.Context, itemID int32) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteItem, itemID)
 }

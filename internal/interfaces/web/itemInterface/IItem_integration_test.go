@@ -18,11 +18,11 @@ func TestItemIntegration(t *testing.T) {
 		route  string
 		status int
 	}{
-		{name: "HandleGet", method: http.MethodGet, route: "/items/1", status: http.StatusOK},
-		{name: "HandleGetAll", method: http.MethodGet, route: "/items", status: http.StatusOK},
-		{name: "HandleGet_NonExistentItem", method: http.MethodGet, route: "/items/9999", status: http.StatusNotFound},
-		{name: "HandleGet_InvalidID", method: http.MethodGet, route: "/items/invalid", status: http.StatusBadRequest},
-		{name: "NotAllowedMethod", method: http.MethodPost, route: "/items/1", status: http.StatusMethodNotAllowed},
+		{name: "HandleGet", method: http.MethodGet, route: "/api/items/1", status: http.StatusOK},
+		{name: "HandleGetAll", method: http.MethodGet, route: "/api/items", status: http.StatusOK},
+		{name: "HandleGet_NonExistentItem", method: http.MethodGet, route: "/api/items/9999", status: http.StatusNotFound},
+		{name: "HandleGet_InvalidID", method: http.MethodGet, route: "/api/items/invalid", status: http.StatusBadRequest},
+		{name: "NotAllowedMethod", method: http.MethodPost, route: "/api/items/1", status: http.StatusMethodNotAllowed},
 	}
 
 	config, err := dbconn.LoadConfigFile()

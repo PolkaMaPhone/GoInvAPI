@@ -1,7 +1,9 @@
 package itemDomain
 
 import (
+	"context"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/application/dto"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/db"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,6 +20,21 @@ import (
 
 type MockRepository struct {
 	mock.Mock
+}
+
+func (m *MockRepository) CreateItem(ctx context.Context, params db.CreateItemParams) (*PartialItem, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).(*PartialItem), args.Error(1)
+}
+
+func (m *MockRepository) DeleteItem(id int32) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
+
+func (m *MockRepository) UpdateItem(ctx context.Context, params db.UpdateItemParams) (*PartialItem, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).(*PartialItem), args.Error(1)
 }
 
 func (m *MockRepository) GetItemByID(id int32) (*Item, error) {

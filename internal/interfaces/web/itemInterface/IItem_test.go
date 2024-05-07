@@ -1,8 +1,10 @@
 package itemInterface
 
 import (
+	"context"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/application/dto"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/db"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -52,4 +54,19 @@ func (m *MockService) GetItemByIDWithCategory(id int32) (*dto.ItemWithCategory, 
 func (m *MockService) GetAllItemsWithCategories() ([]*dto.ItemWithCategory, error) {
 	args := m.Called()
 	return args.Get(0).([]*dto.ItemWithCategory), args.Error(1)
+}
+
+func (m *MockService) CreateItem(ctx context.Context, arg db.CreateItemParams) (*itemDomain.PartialItem, error) {
+	args := m.Called(ctx, arg)
+	return args.Get(0).(*itemDomain.PartialItem), args.Error(1)
+}
+
+func (m *MockService) DeleteItem(id int32) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
+
+func (m *MockService) UpdateItem(ctx context.Context, arg db.UpdateItemParams) (*itemDomain.PartialItem, error) {
+	args := m.Called(ctx, arg)
+	return args.Get(0).(*itemDomain.PartialItem), args.Error(1)
 }

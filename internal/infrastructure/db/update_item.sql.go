@@ -7,38 +7,44 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const updateItem = `-- name: UpdateItem :one
+const updateItem = `-- name: UpdateItem :execresult
 
-DO
-$$
-    BEGIN
-        UPDATE items
-        SET name        = $2,
-            description = $3,
-            category_id = $4,
-            group_id    = $5,
-            location_id = $6,
-            is_stored   = $7,
-            updatedAt   = NOW()
-        WHERE item_id = $1
-        RETURNING item_id, updatedAt;
-    EXCEPTION
-        WHEN OTHERS THEN
-            RAISE NOTICE 'Update operation failed for item_id: %', $1;
-            ROLLBACK;
-    END
-$$
+UPDATE items
+SET name        = $2,
+    description = $3,
+    category_id = $4,
+    group_id    = $5,
+    location_id = $6,
+    is_stored   = $7,
+	"updatedAt"  = now()
+WHERE item_id = $1
+RETURNING item_id
 `
 
-type UpdateItemRow struct {
+type UpdateItemParams struct {
+	ItemID      int32
+	Name        string
+	Description pgtype.Text
+	CategoryID  pgtype.Int4
+	GroupID     pgtype.Int4
+	LocationID  pgtype.Int4
+	IsStored    pgtype.Bool
 }
 
 // noinspection SqlResolveForFile
-func (q *Queries) UpdateItem(ctx context.Context) (UpdateItemRow, error) {
-	row := q.db.QueryRow(ctx, updateItem)
-	var i UpdateItemRow
-	err := row.Scan()
-	return i, err
+func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, updateItem,
+		arg.ItemID,
+		arg.Name,
+		arg.Description,
+		arg.CategoryID,
+		arg.GroupID,
+		arg.LocationID,
+		arg.IsStored,
+	)
 }

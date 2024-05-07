@@ -77,21 +77,21 @@ func convertToDTOItemWithGroupAndCategory(domainItem *ItemWithGroupAndCategory) 
 	}
 }
 
-func _(domainItem *ItemWithLocation) *dto.ItemWithLocation {
-	return &dto.ItemWithLocation{
-		ItemID:      domainItem.ItemID,
-		Name:        domainItem.Name,
-		Description: domainItem.Description,
-		CategoryID:  domainItem.CategoryID,
-		GroupID:     domainItem.GroupID,
-		LocationID:  domainItem.LocationID,
-		IsStored:    domainItem.IsStored,
-		CreatedAt:   domainItem.CreatedAt,
-		UpdatedAt:   domainItem.UpdatedAt,
-		ShelfLabel:  domainItem.ShelfLabel,
-		TubLabel:    domainItem.TubLabel,
-	}
-}
+//func ConvertToDTOItemWithLocation(domainItem *ItemWithLocation) *dto.ItemWithLocation {
+//	return &dto.ItemWithLocation{
+//		ItemID:      domainItem.ItemID,
+//		Name:        domainItem.Name,
+//		Description: domainItem.Description,
+//		CategoryID:  domainItem.CategoryID,
+//		GroupID:     domainItem.GroupID,
+//		LocationID:  domainItem.LocationID,
+//		IsStored:    domainItem.IsStored,
+//		CreatedAt:   domainItem.CreatedAt,
+//		UpdatedAt:   domainItem.UpdatedAt,
+//		ShelfLabel:  domainItem.ShelfLabel,
+//		TubLabel:    domainItem.TubLabel,
+//	}
+//}
 
 func MapDBItemWithCategoryToDTO(dbItem *db.GetItemWithCategoryRow) *dto.ItemWithCategory {
 	if dbItem == nil {
