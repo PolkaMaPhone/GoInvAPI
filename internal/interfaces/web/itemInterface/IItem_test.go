@@ -4,12 +4,42 @@ import (
 	"context"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/application/dto"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/customRouter"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/db"
+	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/dbconn"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/mock"
+	"log"
+	"net/http/httptest"
 )
 
 type MockService struct {
 	mock.Mock
+}
+
+func initializeItemTestServer() *httptest.Server {
+	config, err := dbconn.LoadConfigFile()
+	if err != nil {
+		log.Fatalf("Unable to load config: %v\n", err)
+	}
+
+	dbtest := &dbconn.PgxDB{}
+	_, err = dbconn.GetPoolInstance(config, dbtest)
+	if err != nil {
+		log.Fatalf("Unable to connect to database: %v\n", err)
+	}
+	itemRepo := itemDomain.NewRepository(dbtest.Pool)
+	itemService := itemDomain.NewService(itemRepo)
+	itemHandler := NewItemHandler(itemService)
+
+	router := chi.NewRouter()
+	r := &customRouter.CustomRouter{
+		Mux: router,
+	}
+	itemHandler.HandleRoutes(r)
+
+	server := httptest.NewServer(router)
+	return server
 }
 
 func (m *MockService) GetItemByIDWithGroup(id int32) (*dto.ItemWithGroup, error) {
