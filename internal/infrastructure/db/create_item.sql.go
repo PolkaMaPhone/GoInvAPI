@@ -6,8 +6,8 @@ import (
 )
 
 const createItem = `-- name: CreateItem :execlastid
-INSERT INTO items (name, description, category_id, group_id, location_id, is_stored)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO items (name, description, category_id, group_id, location_id, is_stored, "createdAt", "updatedAt")
+VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
 RETURNING item_id
 `
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/application/dto"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/db"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -143,6 +144,7 @@ func (r *Repo) GetAllItemsWithGroupsAndCategories() ([]*dto.ItemWithGroupAndCate
 
 func (r *Repo) CreateItem(ctx context.Context, arg db.CreateItemParams) (*PartialItem, error) {
 	q := db.New(r.db)
+	logging.InfoLogger.Printf("Creating item %v", arg)
 
 	itemID, err := q.CreateItem(ctx, arg)
 	if err != nil {

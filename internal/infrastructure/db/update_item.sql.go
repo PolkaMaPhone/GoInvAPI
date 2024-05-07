@@ -21,7 +21,7 @@ SET name        = $2,
     group_id    = $5,
     location_id = $6,
     is_stored   = $7,
-	"updatedAt"  = now()
+	"updatedAt"  = NOW()
 WHERE item_id = $1
 RETURNING item_id
 `
