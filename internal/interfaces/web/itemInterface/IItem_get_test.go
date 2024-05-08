@@ -1,13 +1,13 @@
 package itemInterface
 
 import (
-	"fmt"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
 	"github.com/PolkaMaPhone/GoInvAPI/pkg/utils"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -75,9 +75,9 @@ func TestHandleGet(t *testing.T) {
 		{name: "getItem_ValidID2", route: "/items/2", expectedId: 2, expectedStatus: http.StatusOK, expectedBody: `{"ItemID":2,"Name":"","Description":null,"CategoryID":null,"GroupID":null,"LocationID":null,"IsStored":null,"CreatedAt":null,"UpdatedAt":null}`},
 
 		// Failed test cases
-		{name: "getItem_InvalidID_NotFound", route: "/items/999", expectedId: 999, expectedStatus: http.StatusNotFound, expectedBody: fmt.Sprintf(utils.HTTPErrorMessages["NoResultsForParameter"], "item", "999"), expectedErr: &utils.NoResultsForParameterError{ParameterName: "item", ID: "999"}},
-		{name: "getItem_InvalidID_Format", route: "/items/invalid", expectedId: 0, expectedStatus: http.StatusBadRequest, expectedBody: fmt.Sprintf(utils.HTTPErrorMessages["InvalidParameter"], "item_id"), expectedErr: &utils.InvalidParameterError{ParameterName: "item_id"}},
-		{name: "getItem_ValidID_DatabaseError", route: "/items/3", expectedId: 3, expectedStatus: http.StatusInternalServerError, expectedBody: utils.HTTPErrorMessages[utils.ServerError], expectedErr: &utils.ServerErrorType{}},
+		{name: "getItem_InvalidID_NotFound", route: "/items/999", expectedId: 999, expectedStatus: http.StatusNotFound, expectedBody: getExpectedErrorMessage(&utils.NoResultsForParameterError{ParameterName: "item", ID: "999"}), expectedErr: &utils.NoResultsForParameterError{ParameterName: "item", ID: "999"}},
+		{name: "getItem_InvalidID_Format", route: "/items/invalid", expectedId: 0, expectedStatus: http.StatusBadRequest, expectedBody: "invalid parameter 'item_id'\n" + getExpectedErrorMessage(&strconv.NumError{Num: "invalid", Func: "Atoi", Err: strconv.ErrSyntax}), expectedErr: &strconv.NumError{Num: "invalid", Func: "Atoi", Err: strconv.ErrSyntax}},
+		{name: "getItem_ValidID_DatabaseError", route: "/items/3", expectedId: 3, expectedStatus: http.StatusInternalServerError, expectedBody: "internal server error\n", expectedErr: &utils.ServerErrorType{}},
 	}
 	mockSetupFunc := func(ms *MockService, tc TestCase) {
 		// It's ok to allow for this type assertion because ok is the false path and will not execute 'dangerous' code

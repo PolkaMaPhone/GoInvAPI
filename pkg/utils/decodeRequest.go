@@ -3,17 +3,14 @@ package utils
 import (
 	"encoding/json"
 	"net/http"
-
-	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
 )
 
-func DecodeItemFromRequest(w http.ResponseWriter, r *http.Request) (*itemDomain.Item, error) {
-	var item itemDomain.Item
+func DecodeFromRequest(w http.ResponseWriter, r *http.Request, v interface{}) error {
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&item)
+	err := decoder.Decode(v)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return nil, err
+		HandleHTTPError(w, err)
+		return err
 	}
-	return &item, nil
+	return nil
 }

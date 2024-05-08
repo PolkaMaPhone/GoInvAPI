@@ -1,4 +1,4 @@
-package validation
+package validationMiddleware
 
 import (
 	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/logging"

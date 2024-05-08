@@ -43,25 +43,25 @@ func TestHandleRoutes(t *testing.T) {
 		expStatus     int
 		mockSetupFunc func(ms *MockService)
 	}{
-		{name: "HandleGet", method: http.MethodGet, route: "/categories/%d", categoryID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGet", method: http.MethodGet, route: "/api/categories/%d", categoryID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetCategoryByID", int32(1)).Return(&categoryDomain.Category{CategoryID: 1}, nil)
 		}},
-		{name: "HandleGet_Error", method: http.MethodGet, route: "/categories/%d", categoryID: 1, err: errors.New("some error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGet_Error", method: http.MethodGet, route: "/api/categories/%d", categoryID: 1, err: errors.New("some error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetCategoryByID", int32(1)).Return(&categoryDomain.Category{}, errors.New("some error"))
 		}},
-		{name: "HandleGet_InvalidID", method: http.MethodGet, route: "/categories/invalid", categoryID: 0, err: nil, expStatus: http.StatusBadRequest, mockSetupFunc: func(ms *MockService) {}},
-		{name: "HandleGetAll_Error", method: http.MethodGet, route: "/categories", categoryID: 0, err: errors.New("some error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGet_InvalidID", method: http.MethodGet, route: "/api/categories/invalid", categoryID: 0, err: nil, expStatus: http.StatusBadRequest, mockSetupFunc: func(ms *MockService) {}},
+		{name: "HandleGetAll_Error", method: http.MethodGet, route: "/api/categories", categoryID: 0, err: errors.New("some error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetAllCategories").Return([]*categoryDomain.Category{}, errors.New("some error"))
 		}},
-		{name: "NonExistentRoute", method: http.MethodGet, route: "/non_existent_route", categoryID: 0, err: nil, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {}},
-		{name: "NotAllowedMethod", method: http.MethodPost, route: "/categories/%d", categoryID: 1, err: &utils.MethodNotAllowedError{Method: "POST", Route: "/api/categories/%d"}, expStatus: http.StatusMethodNotAllowed, mockSetupFunc: func(ms *MockService) {}},
-		{name: "ServiceError", method: http.MethodGet, route: "/categories/%d", categoryID: 1, err: errors.New("internal server error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+		{name: "NonExistentRoute", method: http.MethodGet, route: "/api/non_existent_route", categoryID: 0, err: nil, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {}},
+		{name: "NotAllowedMethod", method: http.MethodPost, route: "/api/categories/%d", categoryID: 1, err: &utils.MethodNotAllowedError{Method: "POST", Route: "/api/categories/%d"}, expStatus: http.StatusMethodNotAllowed, mockSetupFunc: func(ms *MockService) {}},
+		{name: "ServiceError", method: http.MethodGet, route: "/api/categories/%d", categoryID: 1, err: errors.New("internal server error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetCategoryByID", int32(1)).Return(nil, errors.New("some other error"))
 		}},
-		{name: "NoResults", method: http.MethodGet, route: "/categories/%d", categoryID: 999, err: &utils.NoResultsForParameterError{ParameterName: "category_id", ID: "999", StatusCode: http.StatusNotFound}, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {
+		{name: "NoResults", method: http.MethodGet, route: "/api/categories/%d", categoryID: 999, err: &utils.NoResultsForParameterError{ParameterName: "category_id", ID: "999"}, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetCategoryByID", int32(999)).Return(nil, pgx.ErrNoRows)
 		}},
-		{name: "UnexpectedError", method: http.MethodGet, route: "/categories/%d", categoryID: 1, err: errors.New("unexpected error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+		{name: "UnexpectedError", method: http.MethodGet, route: "/api/categories/%d", categoryID: 1, err: errors.New("unexpected error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetCategoryByID", int32(1)).Return(nil, errors.New("unexpected error"))
 		}},
 	}

@@ -2,19 +2,41 @@ package itemInterface
 
 import (
 	"context"
+	"fmt"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/application/dto"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/domain/itemDomain"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/customRouter"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/db"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/dbconn"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/utils"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/mock"
 	"log"
 	"net/http/httptest"
+	"strconv"
 )
 
 type MockService struct {
 	mock.Mock
+}
+
+func getExpectedErrorMessage(err error) string {
+	switch e := err.(type) {
+	case *utils.InvalidRouteError:
+		return fmt.Sprintf("invalid route '%s'", e.Route)
+	case *utils.MethodNotAllowedError:
+		return fmt.Sprintf("method '%s' is not allowed for route '%s'", e.Method, e.Route)
+	case *utils.NoResultsForParameterError:
+		return fmt.Sprintf("the parameter '%s' with id '%s' returned no results", e.ParameterName, e.ID)
+	case *utils.InvalidParameterError:
+		return fmt.Sprintf("invalid parameter '%s'", e.ParameterName)
+	case *utils.ServerErrorType:
+		return "internal server error"
+	case *strconv.NumError:
+		return fmt.Sprintf("invalid parameter: cannot parse '%s' as %s", e.Num, e.Func)
+	default:
+		return fmt.Sprintf("unexpected error type %T: %v", e, e)
+	}
 }
 
 func initializeItemTestServer() *httptest.Server {

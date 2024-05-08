@@ -2,8 +2,8 @@ package statusInterface
 
 import (
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/customRouter"
-	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/validation"
-	"github.com/PolkaMaPhone/GoInvAPI/pkg/utils"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/errorMiddleware"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/validationMiddleware"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
@@ -16,15 +16,15 @@ func NewStatusHandler() *Handler {
 
 func (h *Handler) HandleRoutes(apiRouter *customRouter.CustomRouter) {
 	r := chi.NewRouter()
-	r.Use(validation.ValidateMethod(http.MethodGet))
-	r.Get("/", h.HandleStatus)
+	r.Use(validationMiddleware.ValidateMethod(http.MethodGet))
+	r.Get("/", errorMiddleware.WithErrorHandling(h.HandleStatus))
 	apiRouter.Mount(apiRouter.GetFullPath("/status"), r)
 }
 
-func (h *Handler) HandleStatus(w http.ResponseWriter, _ *http.Request) {
+func (h *Handler) HandleStatus(w http.ResponseWriter, _ *http.Request) error {
 	_, err := w.Write([]byte("Server is up and running"))
 	if err != nil {
-		utils.HandleHTTPError(w, &utils.ServerErrorType{})
-		return
+		return err
 	}
+	return nil
 }

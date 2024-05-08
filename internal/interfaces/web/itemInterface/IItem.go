@@ -5,7 +5,7 @@ import (
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/customRouter"
 	"github.com/PolkaMaPhone/GoInvAPI/internal/infrastructure/db"
 	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/logging"
-	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/validation"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/validationMiddleware"
 	"github.com/PolkaMaPhone/GoInvAPI/pkg/utils"
 	"github.com/go-chi/chi/v5"
 	"net/http"
@@ -28,7 +28,7 @@ func NewItemHandler(s *itemDomain.Service) *Handler {
 func (h *Handler) HandleRoutes(apiRouter *customRouter.CustomRouter) {
 	apiRouter.Route("/api/items", func(r chi.Router) {
 		r.Route("/{item_id}", func(r chi.Router) {
-			r.Use(validation.ValidateMethod(http.MethodGet, http.MethodPut, http.MethodDelete))
+			r.Use(validationMiddleware.ValidateMethod(http.MethodGet, http.MethodPut, http.MethodDelete))
 			r.Get("/", h.HandleGet)
 			r.Get("/with_category", h.HandleGetWithCategory)
 			r.Get("/with_group", h.HandleGetWithGroup)
@@ -37,31 +37,39 @@ func (h *Handler) HandleRoutes(apiRouter *customRouter.CustomRouter) {
 			r.Put("/", h.HandlePut)
 		})
 
-		r.With(validation.ValidateMethod(http.MethodPost)).Post("/", h.HandlePost)
+		r.With(validationMiddleware.ValidateMethod(http.MethodPost)).Post("/", h.HandlePost)
 
-		r.With(validation.ValidateMethod(http.MethodGet)).Get("/", h.HandleGetAll)
-		r.With(validation.ValidateMethod(http.MethodGet)).Get("/with_category", h.HandleGetAllWithCategories)
-		r.With(validation.ValidateMethod(http.MethodGet)).Get("/with_group", h.HandleGetAllWithGroups)
-		r.With(validation.ValidateMethod(http.MethodGet)).Get("/with_group_and_category", h.HandleGetAllWithGroupsAndCategories)
+		r.With(validationMiddleware.ValidateMethod(http.MethodGet)).Get("/", h.HandleGetAll)
+		r.With(validationMiddleware.ValidateMethod(http.MethodGet)).Get("/with_category", h.HandleGetAllWithCategories)
+		r.With(validationMiddleware.ValidateMethod(http.MethodGet)).Get("/with_group", h.HandleGetAllWithGroups)
+		r.With(validationMiddleware.ValidateMethod(http.MethodGet)).Get("/with_group_and_category", h.HandleGetAllWithGroupsAndCategories)
 	})
 }
 
 func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	itemID, err := utils.GetIDFromRequest(w, r, idParameterName)
 	if err != nil {
+		utils.HandleHTTPError(w, err)
 		return
 	}
+	logging.InfoLogger.Printf("Retrieved itemID: %v", itemID)
 
 	foundItem, err := h.service.GetItemByID(itemID)
-	if utils.HandleGetByIDErrors(w, err, foundItem, itemID, "item") {
+	if err != nil {
+		utils.HandleGetByIDErrors(w, err, foundItem, itemID, "item")
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, foundItem)
+	err = utils.RespondWithJSON(w, http.StatusOK, foundItem)
+	if err != nil {
+		utils.HandleRespondWithJSONErrors(w, err)
+		return
+	}
 }
 
 func (h *Handler) HandlePost(w http.ResponseWriter, r *http.Request) {
-	item, err := utils.DecodeItemFromRequest(w, r)
+	var item itemDomain.Item
+	err := utils.DecodeFromRequest(w, r, &item)
 	if err != nil {
 		logging.ErrorLogger.Printf("Error decoding item from request: %v", err)
 		return
@@ -80,12 +88,17 @@ func (h *Handler) HandlePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logging.InfoLogger.Printf("Item created: %v", createdItem)
-	utils.RespondWithJSON(w, http.StatusCreated, createdItem)
+	err = utils.RespondWithJSON(w, http.StatusCreated, createdItem)
+	if err != nil {
+		utils.HandleRespondWithJSONErrors(w, err)
+		return
+	}
 }
 
 func (h *Handler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	itemID, err := utils.GetIDFromRequest(w, r, idParameterName)
 	if err != nil {
+		utils.HandleHTTPError(w, err)
 		return
 	}
 
@@ -100,28 +113,33 @@ func (h *Handler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 		ID:      itemID,
 		Message: "Item Successfully Deleted",
 	}
-	utils.RespondWithJSON(w, http.StatusOK, response)
+	err = utils.RespondWithJSON(w, http.StatusOK, response)
+	if err != nil {
+		utils.HandleRespondWithJSONErrors(w, err)
+		return
+	}
 }
 
 func (h *Handler) HandlePut(w http.ResponseWriter, r *http.Request) {
 	itemID, err := utils.GetIDFromRequest(w, r, idParameterName)
 	if err != nil {
+		utils.HandleHTTPError(w, err)
 		return
 	}
 
-	// Get the existing item
 	existingItem, err := h.service.GetItemByID(itemID)
 	if err != nil {
-		logging.ErrorLogger.Printf("Error getting item: %v", err)
+		utils.HandleGetByIDErrors(w, err, existingItem, itemID, "item")
 		return
 	}
 
-	newItem, err := utils.DecodeItemFromRequest(w, r)
+	var newItem itemDomain.Item
+	err = utils.DecodeFromRequest(w, r, &newItem)
 	if err != nil {
 		logging.ErrorLogger.Printf("Error decoding item from request: %v", err)
 		return
 	}
-	logging.InfoLogger.Printf("New item: %v", newItem)
+	logging.InfoLogger.Printf("New item: %v", newItem.ItemID)
 
 	if newItem.Name == "" {
 		logging.InfoLogger.Printf("Name is empty, using existing name: %v", existingItem.Name)
@@ -138,7 +156,6 @@ func (h *Handler) HandlePut(w http.ResponseWriter, r *http.Request) {
 	if newItem.GroupID.Valid == false {
 		logging.InfoLogger.Printf("GroupID is empty, using existing GroupID: %v", existingItem.GroupID)
 		newItem.GroupID = existingItem.GroupID
-
 	}
 	if newItem.LocationID.Valid == false {
 		logging.InfoLogger.Printf("LocationID is empty, using existing LocationID: %v", existingItem.LocationID)
@@ -149,7 +166,6 @@ func (h *Handler) HandlePut(w http.ResponseWriter, r *http.Request) {
 		newItem.IsStored = existingItem.IsStored
 	}
 
-	// Update the item in the database with the new struct
 	updatedItem, err := h.service.UpdateItem(r.Context(), db.UpdateItemParams{
 		ItemID:      itemID,
 		Name:        newItem.Name,
@@ -164,83 +180,124 @@ func (h *Handler) HandlePut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, updatedItem)
+	err = utils.RespondWithJSON(w, http.StatusOK, updatedItem)
+	if err != nil {
+		utils.HandleRespondWithJSONErrors(w, err)
+		return
+	}
 }
 
 func (h *Handler) HandleGetWithCategory(w http.ResponseWriter, r *http.Request) {
 	itemID, err := utils.GetIDFromRequest(w, r, idParameterName)
 	if err != nil {
+		utils.HandleHTTPError(w, err)
 		return
 	}
 
 	foundItem, err := h.service.GetItemByIDWithCategory(itemID)
-	if utils.HandleGetByIDErrors(w, err, foundItem, itemID, "item") {
+	if err != nil {
+		utils.HandleGetByIDErrors(w, err, foundItem, itemID, "item")
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, foundItem)
+	err = utils.RespondWithJSON(w, http.StatusOK, foundItem)
+	if err != nil {
+		utils.HandleRespondWithJSONErrors(w, err)
+		return
+	}
 }
 
 func (h *Handler) HandleGetWithGroup(w http.ResponseWriter, r *http.Request) {
 	itemID, err := utils.GetIDFromRequest(w, r, idParameterName)
 	if err != nil {
+		utils.HandleHTTPError(w, err)
 		return
 	}
 
 	foundItem, err := h.service.GetItemByIDWithGroup(itemID)
-	if utils.HandleGetByIDErrors(w, err, foundItem, itemID, "item") {
+	if err != nil {
+		utils.HandleGetByIDErrors(w, err, foundItem, itemID, "item")
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, foundItem)
+	err = utils.RespondWithJSON(w, http.StatusOK, foundItem)
+	if err != nil {
+		return
+	}
 }
 
 func (h *Handler) HandleGetWithGroupAndCategory(w http.ResponseWriter, r *http.Request) {
 	itemID, err := utils.GetIDFromRequest(w, r, idParameterName)
 	if err != nil {
+		utils.HandleHTTPError(w, err)
 		return
 	}
 
 	foundItem, err := h.service.GetItemByIDWithGroupAndCategory(itemID)
-	if utils.HandleGetByIDErrors(w, err, foundItem, itemID, "item") {
+	if err != nil {
+		utils.HandleGetByIDErrors(w, err, foundItem, itemID, "item")
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, foundItem)
+	err = utils.RespondWithJSON(w, http.StatusOK, foundItem)
+	if err != nil {
+		utils.HandleRespondWithJSONErrors(w, err)
+		return
+	}
 }
 
 func (h *Handler) HandleGetAll(w http.ResponseWriter, _ *http.Request) {
 	items, err := h.service.GetAllItems()
-	if utils.HandleGetAllErrors(w, err, items, "items") {
+	if err != nil {
+		utils.HandleGetAllErrors(w, err, items, "items")
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, items)
+	err = utils.RespondWithJSON(w, http.StatusOK, items)
+	if err != nil {
+		utils.HandleRespondWithJSONErrors(w, err)
+		return
+	}
 }
 
 func (h *Handler) HandleGetAllWithCategories(w http.ResponseWriter, _ *http.Request) {
 	items, err := h.service.GetAllItemsWithCategories()
-	if utils.HandleGetAllErrors(w, err, items, "items") {
+	if err != nil {
+		utils.HandleGetAllErrors(w, err, items, "items")
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, items)
+	err = utils.RespondWithJSON(w, http.StatusOK, items)
+	if err != nil {
+		utils.HandleRespondWithJSONErrors(w, err)
+		return
+	}
 }
 
 func (h *Handler) HandleGetAllWithGroups(w http.ResponseWriter, _ *http.Request) {
 	items, err := h.service.GetAllItemsWithGroups()
-	if utils.HandleGetAllErrors(w, err, items, "items") {
+	if err != nil {
+		utils.HandleGetAllErrors(w, err, items, "items")
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, items)
+	err = utils.RespondWithJSON(w, http.StatusOK, items)
+	if err != nil {
+		utils.HandleRespondWithJSONErrors(w, err)
+		return
+	}
 }
 
 func (h *Handler) HandleGetAllWithGroupsAndCategories(w http.ResponseWriter, _ *http.Request) {
 	items, err := h.service.GetAllItemsWithGroupsAndCategories()
-	if utils.HandleGetAllErrors(w, err, items, "items") {
+	if err != nil {
+		utils.HandleGetAllErrors(w, err, items, "items")
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, items)
+	err = utils.RespondWithJSON(w, http.StatusOK, items)
+	if err != nil {
+		utils.HandleRespondWithJSONErrors(w, err)
+		return
+	}
 }

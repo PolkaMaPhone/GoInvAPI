@@ -1,8 +1,9 @@
 package customRouter
 
 import (
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/errorMiddleware"
 	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/logging"
-	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/validation"
+	"github.com/PolkaMaPhone/GoInvAPI/pkg/middleware/validationMiddleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"golang.org/x/time/rate"
@@ -27,8 +28,9 @@ func NewRouter(logLevel string, prefix string) *CustomRouter {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(logging.LogRequestDuration(logLevel))
-	r.Use(validation.ValidateRoute)
-	r.Use(validation.ValidateContentType)
+	r.Use(validationMiddleware.ValidateRoute)
+	r.Use(validationMiddleware.ValidateContentType)
+	r.Use(WithErrorHandlingMiddleware)
 
 	// Create a sub-router
 	subRouter := chi.NewRouter()
@@ -36,6 +38,15 @@ func NewRouter(logLevel string, prefix string) *CustomRouter {
 
 	customRouter := &CustomRouter{subRouter, limiter, prefix}
 	return customRouter
+}
+
+func WithErrorHandlingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		errorMiddleware.WithErrorHandling(func(w http.ResponseWriter, r *http.Request) error {
+			next.ServeHTTP(w, r)
+			return nil
+		})(w, r)
+	})
 }
 
 func (cr *CustomRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {

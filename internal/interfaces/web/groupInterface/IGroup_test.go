@@ -43,25 +43,25 @@ func TestHandleRoutes(t *testing.T) {
 		expStatus     int
 		mockSetupFunc func(ms *MockService)
 	}{
-		{name: "HandleGet", method: http.MethodGet, route: "/groups/%d", groupID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGet", method: http.MethodGet, route: "/api/groups/%d", groupID: 1, err: nil, expStatus: http.StatusOK, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetGroupByID", int32(1)).Return(&groupDomain.Group{GroupID: 1}, nil)
 		}},
-		{name: "HandleGet_Error", method: http.MethodGet, route: "/groups/%d", groupID: 1, err: errors.New("some error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGet_Error", method: http.MethodGet, route: "/api/groups/%d", groupID: 1, err: errors.New("some error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetGroupByID", int32(1)).Return(&groupDomain.Group{}, errors.New("some error"))
 		}},
-		{name: "HandleGet_InvalidID", method: http.MethodGet, route: "/groups/invalid", groupID: 0, err: nil, expStatus: http.StatusBadRequest, mockSetupFunc: func(ms *MockService) {}},
-		{name: "HandleGetAll_Error", method: http.MethodGet, route: "/groups", groupID: 0, err: errors.New("some error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+		{name: "HandleGet_InvalidID", method: http.MethodGet, route: "/api/groups/invalid", groupID: 0, err: nil, expStatus: http.StatusBadRequest, mockSetupFunc: func(ms *MockService) {}},
+		{name: "HandleGetAll_Error", method: http.MethodGet, route: "/api/groups", groupID: 0, err: errors.New("some error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetAllGroups").Return([]*groupDomain.Group{}, errors.New("some error"))
 		}},
-		{name: "NonExistentRoute", method: http.MethodGet, route: "/non_existent_route", groupID: 0, err: nil, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {}},
-		{name: "NotAllowedMethod", method: http.MethodPost, route: "/groups/%d", groupID: 1, err: &utils.MethodNotAllowedError{Method: "POST", Route: "/api/groups/%d"}, expStatus: http.StatusMethodNotAllowed, mockSetupFunc: func(ms *MockService) {}},
-		{name: "ServiceError", method: http.MethodGet, route: "/groups/%d", groupID: 1, err: errors.New("internal server error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+		{name: "NonExistentRoute", method: http.MethodGet, route: "/api/non_existent_route", groupID: 0, err: nil, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {}},
+		{name: "NotAllowedMethod", method: http.MethodPost, route: "/api/groups/%d", groupID: 1, err: &utils.MethodNotAllowedError{Method: "POST", Route: "/api/groups/%d"}, expStatus: http.StatusMethodNotAllowed, mockSetupFunc: func(ms *MockService) {}},
+		{name: "ServiceError", method: http.MethodGet, route: "/api/groups/%d", groupID: 1, err: errors.New("internal server error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetGroupByID", int32(1)).Return(nil, errors.New("some other error"))
 		}},
-		{name: "NoResults", method: http.MethodGet, route: "/groups/%d", groupID: 999, err: &utils.NoResultsForParameterError{ParameterName: "group_id", ID: "999", StatusCode: http.StatusNotFound}, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {
+		{name: "NoResults", method: http.MethodGet, route: "/api/groups/%d", groupID: 999, err: &utils.NoResultsForParameterError{ParameterName: "group_id", ID: "999"}, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetGroupByID", int32(999)).Return(nil, pgx.ErrNoRows)
 		}},
-		{name: "UnexpectedError", method: http.MethodGet, route: "/groups/%d", groupID: 1, err: errors.New("unexpected error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
+		{name: "UnexpectedError", method: http.MethodGet, route: "/api/groups/%d", groupID: 1, err: errors.New("unexpected error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetGroupByID", int32(1)).Return(nil, errors.New("unexpected error"))
 		}},
 	}

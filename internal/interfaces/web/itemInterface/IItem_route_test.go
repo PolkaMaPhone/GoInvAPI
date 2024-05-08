@@ -54,7 +54,7 @@ func TestHandleRoutes(t *testing.T) {
 		{name: "ServiceError", method: http.MethodGet, route: "/api/items/%d", itemID: 1, err: errors.New("internal server error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetItemByID", int32(1)).Return(nil, errors.New("some other error"))
 		}},
-		{name: "NoResults", method: http.MethodGet, route: "/api/items/%d", itemID: 999, err: &utils.NoResultsForParameterError{ParameterName: "item_id", ID: "999", StatusCode: http.StatusNotFound}, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {
+		{name: "NoResults", method: http.MethodGet, route: "/api/items/%d", itemID: 999, err: &utils.NoResultsForParameterError{ParameterName: "item_id", ID: "999"}, expStatus: http.StatusNotFound, mockSetupFunc: func(ms *MockService) {
 			ms.On("GetItemByID", int32(999)).Return(nil, pgx.ErrNoRows)
 		}},
 		{name: "UnexpectedError", method: http.MethodGet, route: "/api/items/%d", itemID: 1, err: errors.New("unexpected error"), expStatus: http.StatusInternalServerError, mockSetupFunc: func(ms *MockService) {
