@@ -3,7 +3,7 @@ module github.com/PolkaMaPhone/GoInvAPI
 go 1.22.2
 
 require (
-	github.com/go-chi/chi/v5 v5.0.5
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/time v0.5.0
